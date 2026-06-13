@@ -1,0 +1,6 @@
+# Build-only corpus downloads (large; regenerate via build/ingest_sentences.js)
+build/examples.utf
+build/examples.utf.gz
+
+# OS / editor cruft
+.DS_Store

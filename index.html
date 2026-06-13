@@ -1,0 +1,1981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#f4efe6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1b1814" media="(prefers-color-scheme: dark)">
+<title>JLPT N5 — 練習</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="JLPT N5">
+<style>
+:root{
+  --paper:#f4efe6; --paper-2:#ece3d4; --card:#fbf8f1;
+  --ink:#23201c; --ink-soft:#5a534a; --ink-faint:#8c8378;
+  --ai:#2b3a67;            /* indigo */
+  --ai-soft:#3d5391;
+  --shu:#c1432b;           /* vermillion seal red */
+  --shu-soft:#d96a52;
+  --gold:#b08d2e;
+  --green:#3f7d52; --green-bg:#e2efe2;
+  --red:#b23b2a; --red-bg:#f5e0da;
+  --line:rgba(35,32,28,.12);
+  --shadow:0 6px 22px rgba(35,32,28,.10);
+  --shadow-lg:0 14px 40px rgba(35,32,28,.18);
+  --jp:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP","Songti SC",serif;
+  --jp-sans:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP","Hiragino Sans",sans-serif;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
+body.dark{
+  --paper:#16151a; --paper-2:#1f1d24; --card:#221f27;
+  --ink:#ece6dc; --ink-soft:#b6afa3; --ink-faint:#7e7669;
+  --ai:#8fa6e0; --ai-soft:#a6b8ea; --shu:#e0775c; --shu-soft:#ec8d75;
+  --gold:#d8b758;
+  --green:#7fc093; --green-bg:#22322a; --red:#e08272; --red-bg:#3a2521;
+  --line:rgba(236,230,220,.14);
+  --shadow:0 6px 22px rgba(0,0,0,.4); --shadow-lg:0 14px 40px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior-y:contain;
+  transition:background .4s ease,color .4s ease;
+}
+/* paper grain */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background-image:radial-gradient(rgba(35,32,28,.035) 1px,transparent 1px);
+  background-size:4px 4px;
+}
+#app{position:relative;z-index:1;max-width:480px;margin:0 auto;min-height:100%;
+  display:flex;flex-direction:column;padding-bottom:78px;}
+.screen{display:none;flex:1;flex-direction:column;animation:fade .35s ease;}
+.screen.active{display:flex;}
+@keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+@keyframes pop{from{opacity:0;transform:scale(.96);}to{opacity:1;transform:scale(1);}}
+
+/* ---------- Header ---------- */
+.topbar{display:flex;align-items:center;gap:12px;padding:18px 20px 6px;}
+.hanko{width:44px;height:44px;flex:0 0 auto;border-radius:50%;background:var(--shu);
+  color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--jp);
+  font-size:20px;font-weight:700;box-shadow:var(--shadow);letter-spacing:-1px;
+  border:2px solid rgba(255,255,255,.25);}
+.brand h1{font-family:var(--serif);font-size:21px;margin:0;letter-spacing:.3px;font-weight:600;}
+.brand p{margin:1px 0 0;font-size:12px;color:var(--ink-faint);letter-spacing:2px;text-transform:uppercase;}
+
+/* ---------- Streak ---------- */
+.streak{margin:14px 20px 6px;background:var(--card);border:1px solid var(--line);
+  border-radius:18px;padding:16px 18px;display:flex;align-items:center;gap:16px;
+  box-shadow:var(--shadow);position:relative;overflow:hidden;}
+.streak::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;
+  background:radial-gradient(circle,var(--shu-soft),transparent 70%);opacity:.18;}
+.streak .num{font-family:var(--serif);font-size:40px;line-height:1;color:var(--shu);font-weight:700;}
+.streak .lab{font-size:13px;color:var(--ink-soft);}
+.streak .lab b{color:var(--ink);font-weight:600;}
+.flame{font-size:30px;filter:saturate(1.2);}
+
+/* ---------- Section title ---------- */
+.sec-title{display:flex;align-items:center;gap:10px;margin:24px 20px 12px;}
+.sec-title span{font-family:var(--jp);font-size:13px;color:var(--shu);font-weight:600;}
+.sec-title h2{font-family:var(--serif);font-size:17px;margin:0;font-weight:600;}
+.sec-title .rule{flex:1;height:1px;background:var(--line);}
+
+/* ---------- Quiz cards ---------- */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 20px;}
+.qcard{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;
+  text-align:left;cursor:pointer;box-shadow:var(--shadow);position:relative;overflow:hidden;
+  transition:transform .15s ease,box-shadow .2s ease;min-height:128px;
+  display:flex;flex-direction:column;justify-content:space-between;}
+.qcard:active{transform:scale(.97);box-shadow:var(--shadow-lg);}
+.qcard .big{font-family:var(--jp);font-size:34px;line-height:1;color:var(--ai);}
+.qcard.full{grid-column:1/-1;min-height:auto;flex-direction:row;align-items:center;gap:16px;}
+.qcard.full .big{font-size:30px;}
+.qcard h3{margin:0;font-size:16px;font-family:var(--serif);font-weight:600;}
+.qcard p{margin:3px 0 0;font-size:12px;color:var(--ink-faint);line-height:1.4;}
+.qcard .meta{font-size:11px;color:var(--shu);font-weight:600;margin-top:8px;letter-spacing:.5px;}
+.qcard .seal{position:absolute;right:14px;top:14px;font-family:var(--jp);font-size:13px;
+  color:var(--ink-faint);opacity:.6;}
+/* daily-review hero cards */
+.review-card,.leech-card{padding-right:58px;}
+.review-card{border-color:rgba(43,58,103,.4);}
+.review-card .big{color:var(--ai);}
+.leech-card{border-color:rgba(193,67,43,.4);}
+.leech-card .big{color:var(--shu);}
+.due-badge{position:absolute;right:16px;top:50%;transform:translateY(-50%);
+  min-width:30px;height:30px;padding:0 9px;border-radius:16px;background:var(--ai);color:#fff;
+  font-family:var(--serif);font-weight:700;font-size:15px;line-height:1;
+  display:inline-flex;align-items:center;justify-content:center;box-shadow:var(--shadow);
+  font-variant-numeric:tabular-nums;}
+.due-badge.shu{background:var(--shu);}
+/* orchestrated home entrance: gentle staggered rise */
+@keyframes riseIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:none;}}
+#screen-home .streak,#screen-home .sec-title,#screen-home .grid>.qcard{
+  animation:riseIn .55s cubic-bezier(.22,.61,.36,1) backwards;}
+#screen-home .streak{animation-delay:.02s;}
+#screen-home .grid>.qcard:nth-child(1){animation-delay:.06s;}
+#screen-home .grid>.qcard:nth-child(2){animation-delay:.10s;}
+#screen-home .grid>.qcard:nth-child(3){animation-delay:.14s;}
+#screen-home .grid>.qcard:nth-child(4){animation-delay:.18s;}
+@media (prefers-reduced-motion:reduce){
+  #screen-home .streak,#screen-home .sec-title,#screen-home .grid>.qcard{animation:none;}
+}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;
+  font-family:var(--sans);font-size:15px;font-weight:600;border-radius:14px;padding:14px 20px;
+  min-height:48px;transition:transform .12s ease,opacity .2s ease,background .2s ease;
+  color:#fff;background:var(--ai);box-shadow:var(--shadow);}
+.btn:active{transform:scale(.97);}
+.btn.shu{background:var(--shu);}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);box-shadow:none;}
+.btn.block{width:100%;}
+.btn.sm{padding:10px 14px;min-height:42px;font-size:14px;border-radius:12px;}
+.btn:disabled{opacity:.45;}
+
+/* ---------- Setup screen ---------- */
+.pane{padding:6px 20px 20px;flex:1;}
+.field{margin-bottom:20px;}
+.field>label{display:block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--ink-faint);margin-bottom:10px;font-weight:600;}
+.choices{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{border:1.5px solid var(--line);background:var(--card);color:var(--ink-soft);
+  padding:10px 14px;border-radius:12px;font-size:14px;cursor:pointer;font-weight:500;
+  min-height:42px;display:inline-flex;align-items:center;transition:all .15s ease;}
+.chip.on{background:var(--ai);color:#fff;border-color:var(--ai);box-shadow:var(--shadow);}
+.chip.shu.on{background:var(--shu);border-color:var(--shu);}
+.sel{width:100%;padding:13px 14px;border-radius:13px;border:1.5px solid var(--line);
+  background:var(--card);color:var(--ink);font-size:15px;font-family:var(--sans);
+  min-height:48px;-webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238c8378' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat:no-repeat;background-position:right 14px center;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;}
+.toggle-row .t-lab{font-size:14px;font-weight:500;}
+.toggle-row .t-sub{font-size:12px;color:var(--ink-faint);margin-top:2px;}
+.sw{width:50px;height:30px;border-radius:20px;background:var(--paper-2);border:1px solid var(--line);
+  position:relative;cursor:pointer;flex:0 0 auto;transition:background .2s;}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .2s ease;}
+.sw.on{background:var(--green);}
+.sw.on::after{left:23px;}
+.setup-foot{padding:0 20px 22px;}
+.count-note{text-align:center;font-size:13px;color:var(--ink-faint);margin:0 0 14px;}
+
+/* ---------- Quiz screen ---------- */
+.quiz-head{display:flex;align-items:center;gap:12px;padding:16px 20px 8px;}
+.iconbtn{width:42px;height:42px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);
+  color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;
+  font-size:18px;}
+.progress-wrap{flex:1;}
+.progress-track{height:8px;border-radius:6px;background:var(--paper-2);overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--shu),var(--shu-soft));
+  width:0;transition:width .4s ease;border-radius:6px;}
+.progress-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-faint);margin-top:5px;}
+
+/* ---------- Timed mode ---------- */
+.timer{flex:0 0 auto;min-width:62px;height:42px;padding:0 12px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  border:1.5px solid var(--line);background:var(--card);
+  font-family:var(--serif);font-variant-numeric:tabular-nums;font-feature-settings:"tnum";
+  font-size:19px;font-weight:700;color:var(--ai);letter-spacing:.5px;
+  transition:color .3s ease,border-color .3s ease,background .3s ease;}
+.timer::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ai);
+  opacity:.65;transition:background .3s ease;}
+.timer.low{color:var(--shu);border-color:var(--shu);}
+.timer.low::before{background:var(--shu);animation:tpulse 1s steps(1) infinite;}
+@keyframes tpulse{50%{opacity:.2;}}
+.time-bar{height:3px;width:100%;background:transparent;}
+.time-bar i{display:block;height:100%;width:100%;transform-origin:left center;
+  background:linear-gradient(90deg,var(--ai),var(--ai-soft));
+  transition:transform 1s linear,background .4s ease;}
+.time-bar.low i{background:linear-gradient(90deg,var(--shu),var(--shu-soft));}
+.qbody{flex:1;display:flex;flex-direction:column;padding:8px 20px 16px;}
+.qcard-main{background:var(--card);border:1px solid var(--line);border-radius:24px;
+  box-shadow:var(--shadow);padding:30px 22px;text-align:center;position:relative;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:230px;
+  animation:pop .3s ease;}
+.qtag{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-faint);font-weight:600;}
+.qprompt{font-family:var(--jp);font-weight:600;color:var(--ink);margin:14px 0 6px;line-height:1.15;word-break:break-word;}
+.qprompt.kana{font-size:88px;color:var(--ai);}
+.qprompt.kanji{font-size:84px;color:var(--ai);}
+.qprompt.word{font-size:46px;}
+.qprompt.en{font-size:30px;font-family:var(--serif);color:var(--ink);}
+.qsub{font-size:15px;color:var(--ink-faint);font-family:var(--jp);min-height:20px;}
+.star{position:absolute;top:16px;right:16px;font-size:24px;cursor:pointer;color:var(--ink-faint);
+  background:none;border:none;line-height:1;transition:transform .15s ease,color .2s ease;}
+.star.on{color:var(--gold);transform:scale(1.12);}
+.repeat-badge{position:absolute;top:16px;left:16px;font-size:10px;background:var(--shu);color:#fff;
+  padding:4px 9px;border-radius:20px;letter-spacing:1px;font-weight:700;display:none;}
+.repeat-badge.show{display:inline-block;}
+
+/* answer area */
+.ans-area{margin-top:18px;}
+.tinput{width:100%;padding:16px 16px;font-size:20px;border-radius:15px;border:2px solid var(--line);
+  background:var(--card);color:var(--ink);text-align:center;font-family:var(--jp-sans);}
+.tinput:focus{outline:none;border-color:var(--ai);}
+.tinput.right{border-color:var(--green);background:var(--green-bg);}
+.tinput.wrong{border-color:var(--red);background:var(--red-bg);}
+.mcq{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px;}
+.opt{padding:18px 12px;border-radius:16px;border:2px solid var(--line);background:var(--card);
+  color:var(--ink);font-size:22px;cursor:pointer;min-height:60px;font-family:var(--jp-sans);
+  display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.25;
+  transition:transform .1s ease,background .2s ease,border-color .2s ease;word-break:break-word;}
+.opt.en{font-size:16px;font-family:var(--serif);}
+.opt:active{transform:scale(.97);}
+.opt.correct{background:var(--green-bg);border-color:var(--green);color:var(--green);font-weight:700;}
+.opt.wrong{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+.opt.dim{opacity:.45;}
+.feedback{min-height:46px;text-align:center;margin-top:14px;font-size:15px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:8px;}
+.feedback .fb-correct{color:var(--green);}
+.feedback .fb-wrong{color:var(--red);}
+.feedback .ans{font-family:var(--jp);color:var(--ink);font-weight:700;}
+.fb-note{font-size:13px;color:var(--ink-soft);font-weight:400;margin-top:6px;line-height:1.5;}
+.example{margin-top:12px;padding:12px 14px;background:var(--paper-2);border:1px solid var(--line);
+  border-radius:14px;text-align:left;width:100%;animation:fade .3s ease;}
+.example .ex-jp{font-family:var(--jp);font-size:18px;color:var(--ink);line-height:1.5;font-weight:600;}
+.example .ex-r{font-family:var(--jp);font-size:13px;color:var(--ai);margin-top:3px;}
+.example .ex-en{font-size:13px;color:var(--ink-soft);margin-top:3px;font-weight:400;}
+.example.tip{background:var(--green-bg);border-color:var(--green);}
+.example.tip .ex-en{font-size:14px;color:var(--ink);font-weight:500;margin:0;}
+.quiz-foot{padding:6px 20px 18px;display:flex;gap:10px;}
+
+/* ---------- Results ---------- */
+.result-hero{text-align:center;padding:28px 20px 8px;}
+.result-hero .big-emoji{font-size:54px;}
+.result-hero h2{font-family:var(--serif);font-size:24px;margin:8px 0 2px;}
+.result-hero p{color:var(--ink-faint);font-size:14px;margin:0;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px 20px 6px;}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;text-align:center;box-shadow:var(--shadow);}
+.stat .v{font-family:var(--serif);font-size:30px;font-weight:700;color:var(--ai);}
+.stat .v.shu{color:var(--shu);}
+.stat .v.green{color:var(--green);}
+.stat .l{font-size:11px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+.missed-list{padding:6px 20px;}
+.missed-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);
+  border:1px solid var(--line);border-radius:14px;margin-bottom:8px;}
+.missed-item .mk{font-family:var(--jp);font-size:26px;color:var(--ai);min-width:40px;text-align:center;}
+.missed-item .mi{flex:1;}
+.missed-item .mi .t{font-size:15px;font-weight:600;}
+.missed-item .mi .s{font-size:12px;color:var(--ink-faint);}
+.missed-item .x{font-size:11px;color:var(--shu);font-weight:700;background:var(--red-bg);
+  padding:3px 8px;border-radius:20px;}
+
+/* ---------- Bookmarks ---------- */
+.bk-group{margin:6px 20px 18px;}
+.bk-group h3{font-family:var(--serif);font-size:16px;margin:0 0 10px;display:flex;align-items:center;gap:8px;}
+.bk-group h3 .c{font-size:12px;background:var(--paper-2);color:var(--ink-soft);padding:2px 9px;border-radius:20px;font-family:var(--sans);}
+.bk-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);
+  border:1px solid var(--line);border-radius:14px;margin-bottom:8px;}
+.bk-item .bk-main{font-family:var(--jp);font-size:24px;color:var(--ai);min-width:42px;text-align:center;}
+.bk-item .bk-info{flex:1;min-width:0;}
+.bk-item .bk-info .t{font-size:15px;font-weight:600;}
+.bk-item .bk-info .s{font-size:12px;color:var(--ink-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bk-item .bk-rm{background:none;border:none;color:var(--ink-faint);font-size:20px;cursor:pointer;padding:4px;}
+.empty{text-align:center;color:var(--ink-faint);padding:60px 30px;}
+.empty .e-emoji{font-size:44px;opacity:.6;}
+.empty p{font-size:14px;margin-top:10px;line-height:1.5;}
+
+/* ---------- Settings ---------- */
+.set-card{margin:6px 20px;background:var(--card);border:1px solid var(--line);border-radius:16px;
+  overflow:hidden;box-shadow:var(--shadow);}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;
+  border-bottom:1px solid var(--line);}
+.set-row:last-child{border-bottom:none;}
+.set-row .sl{font-size:15px;font-weight:500;}
+.set-row .ss{font-size:12px;color:var(--ink-faint);margin-top:2px;}
+
+/* ---------- Bottom nav ---------- */
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:20;max-width:480px;margin:0 auto;
+  background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);
+  display:flex;padding:8px 6px calc(8px + env(safe-area-inset-bottom));}
+.nav button{flex:1;background:none;border:none;cursor:pointer;color:var(--ink-faint);
+  display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;font-size:10px;
+  font-weight:600;letter-spacing:.3px;transition:color .2s;}
+.nav button .ni{font-size:21px;line-height:1;}
+.nav button.on{color:var(--shu);}
+
+/* misc */
+.scroll{overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.fineprint{text-align:center;font-size:11px;color:var(--ink-faint);padding:18px 20px 4px;line-height:1.5;}
+.swipe-hint{text-align:center;font-size:11px;color:var(--ink-faint);margin-top:10px;opacity:.8;}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);
+  background:var(--ink);color:var(--paper);padding:11px 18px;border-radius:30px;font-size:13px;
+  font-weight:600;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:all .3s ease;z-index:50;
+  max-width:90%;text-align:center;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+@media (max-width:360px){.qprompt.kana,.qprompt.kanji{font-size:72px;}}
+
+/* ---------- Reading ---------- */
+.read-card{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);
+  border-radius:18px;padding:16px 18px;margin-bottom:12px;cursor:pointer;box-shadow:var(--shadow);
+  transition:transform .15s ease;position:relative;}
+.read-card:active{transform:scale(.98);}
+.read-card .rc-top{display:flex;align-items:center;gap:10px;}
+.read-card .rc-glyph{font-family:var(--jp);font-size:26px;color:var(--ai);}
+.read-card h3{font-family:var(--serif);font-size:16px;margin:0;font-weight:600;flex:1;}
+.read-card .rc-jp{font-family:var(--jp);font-size:13px;color:var(--ink-faint);margin-top:6px;line-height:1.4;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.read-card .rc-meta{display:flex;gap:10px;margin-top:10px;font-size:11px;color:var(--ink-faint);}
+.read-card .rc-done{position:absolute;top:14px;right:16px;font-size:12px;color:var(--green);font-weight:700;}
+.read-card .pill{background:var(--paper-2);padding:3px 9px;border-radius:20px;font-weight:600;}
+.reading-toggles{display:flex;gap:8px;padding:4px 20px 8px;}
+.rtog{flex:1;border:1.5px solid var(--line);background:var(--card);color:var(--ink-soft);
+  padding:10px;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;min-height:42px;}
+.rtog.on{background:var(--ai);color:#fff;border-color:var(--ai);}
+.r-sentence{padding:12px 0;border-bottom:1px solid var(--line);}
+.r-jp{font-family:var(--jp);font-size:22px;line-height:1.7;color:var(--ink);}
+.r-furi{font-family:var(--jp);font-size:14px;color:var(--ai);margin-top:5px;display:none;line-height:1.5;}
+.r-en{font-size:14px;color:var(--ink-soft);margin-top:5px;display:none;line-height:1.5;}
+.reading-body.show-furi .r-furi{display:block;}
+.reading-body.show-en .r-en{display:block;}
+.r-section-title{font-family:var(--serif);font-size:15px;font-weight:600;margin:22px 0 10px;
+  display:flex;align-items:center;gap:8px;}
+.gloss{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px 14px;}
+.gloss-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);align-items:baseline;}
+.gloss-row:last-child{border-bottom:none;}
+.gloss-row .gw{font-family:var(--jp);font-size:17px;color:var(--ink);min-width:64px;font-weight:600;}
+.gloss-row .gr{font-family:var(--jp);font-size:13px;color:var(--ai);min-width:70px;}
+.gloss-row .gm{font-size:13px;color:var(--ink-soft);flex:1;}
+.rq{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
+.rq .rq-q{font-family:var(--jp);font-size:16px;font-weight:600;margin-bottom:12px;line-height:1.5;}
+.rq .opt{margin-bottom:8px;}
+.rq-expl{font-size:13px;color:var(--ink-soft);margin-top:8px;line-height:1.5;display:none;}
+.rq-expl.show{display:block;}
+.read-score{text-align:center;background:var(--green-bg);border:1px solid var(--green);border-radius:16px;
+  padding:18px;margin:10px 0;font-family:var(--serif);font-size:18px;color:var(--green);font-weight:700;}
+/* sentence bank */
+.sent-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;
+  margin-bottom:12px;box-shadow:var(--shadow);}
+.sent-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.sent-head .sword{font-family:var(--jp);font-size:24px;color:var(--ai);font-weight:600;}
+.sent-head .sr{font-family:var(--jp);font-size:13px;color:var(--ink-faint);}
+.sent-head .sm{font-size:13px;color:var(--ink-soft);flex:1;min-width:80px;}
+.sent-head .stype{font-size:10px;background:var(--paper-2);color:var(--ink-faint);padding:2px 8px;
+  border-radius:20px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.sent-jp{font-family:var(--jp);font-size:20px;line-height:1.6;color:var(--ink);}
+.sent-furi{font-family:var(--jp);font-size:13px;color:var(--ai);margin-top:4px;display:none;line-height:1.5;}
+.sent-en{font-size:13px;color:var(--ink-soft);margin-top:4px;display:none;line-height:1.5;}
+.sentences-body.show-furi .sent-furi{display:block;}
+.sentences-body.show-en .sent-en{display:block;}
+.sent-count{text-align:center;font-size:12px;color:var(--ink-faint);padding:0 0 10px;}
+/* sentence-bank search */
+.search-wrap{padding:2px 20px 6px;}
+.searchbox{width:100%;padding:12px 16px;font-size:15px;border-radius:13px;
+  border:1.5px solid var(--line);background:var(--card);color:var(--ink);
+  font-family:var(--jp-sans);-webkit-appearance:none;}
+.searchbox::placeholder{color:var(--ink-faint);}
+.searchbox:focus{outline:none;border-color:var(--ai);box-shadow:0 0 0 3px rgba(43,58,103,.12);}
+.empty-note{text-align:center;color:var(--ink-faint);font-size:14px;padding:28px 16px;line-height:1.6;}
+/* listening */
+.listen-card{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow);}
+.listen-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.ltag{font-family:var(--jp);font-size:11px;font-weight:700;color:#fff;background:var(--ai);
+  padding:2px 9px;border-radius:20px;letter-spacing:.5px;}
+.lsub{font-size:11px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:1px;font-weight:600;}
+.listen-title{font-family:var(--jp);font-size:18px;font-weight:600;color:var(--ink);}
+.listen-desc{font-size:13px;color:var(--ink-soft);margin:4px 0 12px;line-height:1.5;}
+.listen-actions{display:flex;align-items:center;gap:14px;}
+.listen-link,.listen-go{font-size:13px;font-weight:600;color:var(--ai);text-decoration:none;}
+a.btn.listen-go{color:#fff;text-decoration:none;}
+.listen-embed{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;
+  margin-top:4px;background:#000;}
+.listen-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+/* mock exam */
+.qprompt.sent{font-family:var(--jp);font-size:23px;line-height:1.55;font-weight:600;color:var(--ink);}
+.opt.sel{border-color:var(--ai);background:rgba(43,58,103,.10);}
+body.dark .opt.sel{background:rgba(143,166,224,.16);}
+.mock-passage{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:12px 15px;margin:0 0 12px;box-shadow:var(--shadow);}
+.mp-title{font-family:var(--jp);font-weight:700;font-size:13px;color:var(--shu);margin-bottom:6px;}
+.mp-line{font-family:var(--jp);font-size:15px;line-height:1.8;color:var(--ink);}
+.ms-card{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:16px 18px;box-shadow:var(--shadow);}
+.ms-row{margin-bottom:12px;}
+.ms-top{display:flex;justify-content:space-between;font-size:13px;font-weight:600;margin-bottom:5px;}
+.ms-track{height:8px;border-radius:6px;background:var(--paper-2);overflow:hidden;}
+.ms-fill{height:100%;background:linear-gradient(90deg,var(--ai),var(--ai-soft));border-radius:6px;}
+.ms-est{font-family:var(--serif);font-size:16px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line);}
+.ms-est b{color:var(--ai);}
+.ms-pass{font-size:12px;color:var(--ink-faint);font-family:var(--sans);}
+.ms-note{font-size:12px;color:var(--ink-faint);line-height:1.5;margin-top:8px;}
+.mr-item{background:var(--card);border:1px solid var(--line);border-left-width:4px;border-radius:12px;
+  padding:11px 13px;margin-bottom:9px;}
+.mr-item.ok{border-left-color:var(--green);}
+.mr-item.no{border-left-color:var(--red);}
+.mr-q{font-family:var(--jp);font-size:15px;line-height:1.5;}
+.mr-n{color:var(--ink-faint);font-family:var(--sans);font-weight:700;}
+.mr-a{font-size:13px;color:var(--ink-soft);margin-top:5px;}
+.mr-e{font-size:12px;color:var(--ink-faint);margin-top:4px;line-height:1.5;}
+/* kanji bank */
+.kb-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;
+  margin-bottom:12px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:flex-start;}
+.kb-glyph{font-family:var(--jp);font-size:52px;line-height:1;color:var(--ai);flex:0 0 auto;
+  width:64px;text-align:center;}
+.kb-info{flex:1;min-width:0;}
+.kb-mean{font-family:var(--serif);font-size:17px;font-weight:600;}
+.kb-read{font-size:13px;margin-top:4px;line-height:1.5;}
+.kb-read .lbl{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.5px;
+  background:var(--paper-2);color:var(--ink-faint);padding:1px 7px;border-radius:20px;margin-right:5px;}
+.kb-read .on-r{font-family:var(--jp);color:var(--shu);}
+.kb-read .kun-r{font-family:var(--jp);color:var(--ai-soft);}
+.kb-vocab{font-family:var(--jp);font-size:13px;color:var(--ink-soft);margin-top:6px;}
+.kb-tip{font-size:13px;color:var(--ink);margin-top:8px;line-height:1.5;
+  background:var(--green-bg);border:1px solid var(--green);border-radius:10px;padding:7px 10px;}
+.kb-cat-head{font-family:var(--serif);font-size:14px;font-weight:600;color:var(--ink-faint);
+  margin:14px 0 10px;text-transform:uppercase;letter-spacing:1px;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME -->
+  <section id="screen-home" class="screen active scroll">
+    <div class="topbar">
+      <div class="hanko">日</div>
+      <div class="brand"><h1>JLPT N5</h1><p>Renshū · 練習</p></div>
+    </div>
+    <div class="streak">
+      <div class="flame">🔥</div>
+      <div><div class="num" id="streakNum">0</div></div>
+      <div class="lab"><b>day streak</b><br><span id="streakSub">Start studying today!</span></div>
+    </div>
+    <div class="sec-title"><span>復習</span><h2>Daily review</h2><div class="rule"></div></div>
+    <div class="grid">
+      <button class="qcard full review-card" id="dueCard">
+        <div class="big">今</div>
+        <div style="flex:1"><h3>Due today</h3><p id="dueCount">nothing scheduled yet</p></div>
+        <span class="due-badge" id="dueBadge" hidden>0</span>
+      </button>
+      <button class="qcard full leech-card" id="leechCard" hidden>
+        <div class="big">弱</div>
+        <div style="flex:1"><h3>Trouble words</h3><p id="leechCount">— to drill</p></div>
+        <span class="due-badge shu" id="leechBadge">0</span>
+      </button>
+    </div>
+    <div class="sec-title"><span>仮名</span><h2>Kana</h2><div class="rule"></div></div>
+    <div class="grid">
+      <button class="qcard" data-quiz="hiragana"><div class="seal">ひ</div><div class="big">あ</div><div><h3>Hiragana</h3><p>46 base + extras</p><div class="meta">READ &amp; WRITE</div></div></button>
+      <button class="qcard" data-quiz="katakana"><div class="seal">カ</div><div class="big">ア</div><div><h3>Katakana</h3><p>46 base + extras</p><div class="meta">READ &amp; WRITE</div></div></button>
+    </div>
+    <div class="sec-title"><span>言葉</span><h2>Words &amp; Kanji</h2><div class="rule"></div></div>
+    <div class="grid">
+      <button class="qcard full" data-quiz="vocab"><div class="big">語</div><div style="flex:1"><h3>Vocabulary</h3><p id="vocabCount">— words · filter by type</p></div></button>
+      <button class="qcard full" data-quiz="kanji"><div class="big">漢</div><div style="flex:1"><h3>Kanji</h3><p id="kanjiCount">— kanji · meaning &amp; readings</p></div></button>
+      <button class="qcard full" data-quiz="grammar"><div class="big">文</div><div style="flex:1"><h3>Grammar</h3><p id="grammarCount">— points · fill-in-the-blank</p></div></button>
+    </div>
+    <div class="sec-title"><span>模試</span><h2>Mock exam</h2><div class="rule"></div></div>
+    <div class="grid">
+      <button class="qcard full mock-home" id="mockCard"><div class="big">試</div><div style="flex:1"><h3>Timed mock exam</h3><p id="mockCount">exam-style · vocab · grammar · reading</p></div></button>
+    </div>
+    <div class="sec-title"><span>読解</span><h2>Reading</h2><div class="rule"></div></div>
+    <div class="grid">
+      <button class="qcard full" id="readingCard"><div class="big">読</div><div style="flex:1"><h3>Reading practice</h3><p id="readingCount">— passages · build fluency</p></div></button>
+      <button class="qcard full" id="sentencesCard"><div class="big">例</div><div style="flex:1"><h3>Sentence bank</h3><p id="sentencesCount">— example sentences by type</p></div></button>
+      <button class="qcard full" id="kanjiBankCard"><div class="big">漢</div><div style="flex:1"><h3>Kanji bank</h3><p id="kanjiBankCount">— browse with readings &amp; tips</p></div></button>
+    </div>
+    <div class="sec-title"><span>聴解</span><h2>Listening</h2><div class="rule"></div></div>
+    <div class="grid">
+      <button class="qcard full" id="listeningCard"><div class="big">聴</div><div style="flex:1"><h3>Listening practice</h3><p id="listeningCount">— curated YouTube practice</p></div></button>
+    </div>
+    <p class="fineprint">All progress is saved on this device only.<br>No internet, no account. Works fully offline. ✈️<br><span style="opacity:.8">Listening links open YouTube and need a connection.</span></p>
+  </section>
+
+  <!-- LISTENING -->
+  <section id="screen-listening" class="screen scroll">
+    <div class="topbar"><div class="iconbtn" data-nav="home">‹</div>
+      <div class="brand" style="margin-left:4px"><h1>Listening</h1><p>聴解 · practice on YouTube</p></div></div>
+    <div id="listenTypeChips" class="choices" style="padding:4px 20px 6px;flex-wrap:wrap;"></div>
+    <div id="listeningBody" class="pane"></div>
+  </section>
+
+  <!-- MOCK EXAM -->
+  <section id="screen-mock" class="screen">
+    <div class="quiz-head">
+      <div class="iconbtn" id="mockEndBtn">✕</div>
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="mockProg"></div></div>
+        <div class="progress-meta"><span id="mockSection">Vocabulary</span><span id="mockCounter">1 / 45</span></div>
+      </div>
+      <div class="timer" id="mockTimer"><span class="t-clock">0:00</span></div>
+    </div>
+    <div class="qbody">
+      <div id="mockPassage" class="mock-passage" hidden></div>
+      <div class="qcard-main">
+        <div class="qtag" id="mockTag"></div>
+        <div class="qprompt sent" id="mockPrompt"></div>
+        <div class="qsub" id="mockSub"></div>
+      </div>
+      <div class="ans-area" id="mockAns"></div>
+    </div>
+    <div class="quiz-foot" id="mockFoot"></div>
+  </section>
+
+  <!-- MOCK RESULT -->
+  <section id="screen-mock-result" class="screen scroll">
+    <div class="result-hero">
+      <div class="big-emoji" id="mockEmoji">📝</div>
+      <h2 id="mockVerdict">Mock complete</h2>
+      <p id="mockResultSub"></p>
+    </div>
+    <div id="mockScoreCard" class="pane"></div>
+    <div class="pane" id="mockReviewWrap"></div>
+    <div style="padding:0 20px 28px;display:flex;gap:10px">
+      <button class="btn ghost block" data-nav="home">Home</button>
+      <button class="btn block" id="mockRetry">New mock</button>
+    </div>
+  </section>
+
+  <!-- SETUP -->
+  <section id="screen-setup" class="screen scroll">
+    <div class="topbar">
+      <div class="iconbtn" data-nav="home">‹</div>
+      <div class="brand" style="margin-left:4px"><h1 id="setupTitle">Quiz</h1><p id="setupSub">Set it up</p></div>
+    </div>
+    <div class="pane" id="setupPane"></div>
+    <div class="setup-foot">
+      <p class="count-note" id="setupCount"></p>
+      <button class="btn shu block" id="startBtn">Start Quiz</button>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="screen-quiz" class="screen">
+    <div class="time-bar" id="timeBar" hidden><i id="timeBarFill"></i></div>
+    <div class="quiz-head">
+      <div class="iconbtn" id="endBtn">✕</div>
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="progFill"></div></div>
+        <div class="progress-meta"><span id="progDone">0 done</span><span id="progLeft">0 left</span></div>
+      </div>
+      <div class="timer" id="quizTimer" hidden><span class="t-clock">0:00</span></div>
+    </div>
+    <div class="qbody">
+      <div class="qcard-main" id="quizCard">
+        <button class="star" id="starBtn">☆</button>
+        <span class="repeat-badge" id="repeatBadge">RETRY</span>
+        <div class="qtag" id="qTag">MEANING</div>
+        <div class="qprompt kana" id="qPrompt">あ</div>
+        <div class="qsub" id="qSub"></div>
+      </div>
+      <div class="ans-area" id="ansArea"></div>
+      <div class="feedback" id="feedback"></div>
+      <p class="swipe-hint" id="swipeHint">← swipe to skip</p>
+    </div>
+    <div class="quiz-foot" id="quizFoot"></div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="screen-results" class="screen scroll">
+    <div class="result-hero">
+      <div class="big-emoji" id="resEmoji">🎌</div>
+      <h2 id="resTitle">Nice work!</h2>
+      <p id="resSubtitle">Session complete</p>
+    </div>
+    <div class="stat-grid" id="statGrid"></div>
+    <div class="sec-title" id="missedTitle" style="display:none"><span>復習</span><h2>Review these</h2><div class="rule"></div></div>
+    <div class="missed-list" id="missedList"></div>
+    <div class="pane">
+      <button class="btn shu block" id="bookmarkMissedBtn" style="margin-bottom:10px;display:none">★ Bookmark all missed</button>
+      <button class="btn block" id="restartBtn" style="margin-bottom:10px">↺ Restart this session</button>
+      <button class="btn ghost block" data-nav="home">Back to menu</button>
+    </div>
+  </section>
+
+  <!-- READING LIST -->
+  <section id="screen-reading-list" class="screen scroll">
+    <div class="topbar"><div class="iconbtn" data-nav="home">‹</div>
+      <div class="brand" style="margin-left:4px"><h1>Reading</h1><p>読解 · N5 passages</p></div></div>
+    <div id="readingListBody" class="pane"></div>
+  </section>
+
+  <!-- READING PASSAGE -->
+  <section id="screen-reading" class="screen scroll">
+    <div class="topbar"><div class="iconbtn" data-nav="reading-list">‹</div>
+      <div class="brand" style="margin-left:4px"><h1 id="rTitle">Passage</h1><p id="rTopic"></p></div></div>
+    <div class="reading-toggles">
+      <button class="rtog" id="togFuri">あ Furigana</button>
+      <button class="rtog" id="togEn">EN Translation</button>
+    </div>
+    <div id="readingBody" class="pane"></div>
+  </section>
+
+  <!-- SENTENCE BANK -->
+  <section id="screen-sentences" class="screen scroll">
+    <div class="topbar"><div class="iconbtn" data-nav="home">‹</div>
+      <div class="brand" style="margin-left:4px"><h1>Sentence bank</h1><p>例文 · read &amp; practice</p></div></div>
+    <div class="reading-toggles">
+      <button class="rtog on" id="sTogFuri">あ Furigana</button>
+      <button class="rtog on" id="sTogEn">EN Translation</button>
+    </div>
+    <div class="search-wrap">
+      <input id="sentSearch" class="searchbox" type="search" autocomplete="off"
+        autocapitalize="off" spellcheck="false" placeholder="Search word, reading, meaning or sentence…">
+    </div>
+    <div id="sentTypeChips" class="choices" style="padding:4px 20px 6px;flex-wrap:wrap;"></div>
+    <div id="sentencesBody" class="pane"></div>
+  </section>
+
+  <!-- KANJI BANK -->
+  <section id="screen-kanji-bank" class="screen scroll">
+    <div class="topbar"><div class="iconbtn" data-nav="home">‹</div>
+      <div class="brand" style="margin-left:4px"><h1>Kanji bank</h1><p>漢字 · readings &amp; tips</p></div></div>
+    <div id="kbCatChips" class="choices" style="padding:4px 20px 6px;flex-wrap:wrap;"></div>
+    <div id="kanjiBankBody" class="pane"></div>
+  </section>
+
+  <!-- BOOKMARKS -->
+  <section id="screen-bookmarks" class="screen scroll">
+    <div class="topbar"><div class="hanko" style="background:var(--gold)">★</div>
+      <div class="brand"><h1>Bookmarks</h1><p>Saved for review</p></div></div>
+    <div id="bookmarksBody"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="screen-settings" class="screen scroll">
+    <div class="topbar"><div class="hanko" style="background:var(--ai)">設</div>
+      <div class="brand"><h1>Settings</h1><p>Preferences</p></div></div>
+    <div class="sec-title"><span>既定</span><h2>Defaults</h2><div class="rule"></div></div>
+    <div class="set-card" id="settingsDefaults"></div>
+    <div class="sec-title"><span>表示</span><h2>Appearance</h2><div class="rule"></div></div>
+    <div class="set-card">
+      <div class="set-row"><div><div class="sl">Dark mode</div><div class="ss">Sumi ink night theme</div></div>
+        <div class="sw" id="darkSw"></div></div>
+    </div>
+    <div class="sec-title"><span>記録</span><h2>Data</h2><div class="rule"></div></div>
+    <div class="set-card">
+      <div class="set-row" id="exportBtn"><div><div class="sl">Export progress</div>
+        <div class="ss">Download a backup file (bookmarks, stats, streak)</div></div><div style="font-size:20px">⬇️</div></div>
+      <div class="set-row" id="importBtn"><div><div class="sl">Import progress</div>
+        <div class="ss">Restore from a backup file</div></div><div style="font-size:20px">⬆️</div></div>
+      <div class="set-row" id="resetBtn"><div><div class="sl" style="color:var(--shu)">Reset all progress</div>
+        <div class="ss">Clears streak, stats &amp; bookmarks</div></div><div style="font-size:20px">🗑️</div></div>
+    </div>
+    <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+
+    <div class="sec-title"><span>出典</span><h2>Credits &amp; licenses</h2><div class="rule"></div></div>
+    <div class="set-card">
+      <div class="set-row" style="display:block">
+        <div class="ss" style="line-height:1.7">
+          Content is used for personal, non-commercial study, with thanks to:
+          <ul style="margin:8px 0 0;padding-left:18px">
+            <li>Example sentences — <b>Tatoeba Project</b> (CC BY 2.0 FR)</li>
+            <li>Grammar explanations — adapted from <b>Tae Kim's Guide to Japanese</b> (CC BY-NC-SA 3.0) and <b>Wikibooks: Japanese</b> (CC BY-SA)</li>
+            <li>Listening practice — links to third-party <b>YouTube</b> videos; all rights remain with their creators</li>
+          </ul>
+          <div style="margin-top:8px">Reused text is reworded/adapted; attribution and share-alike terms are honored. This app stores no data off your device.</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="fineprint">JLPT N5 Renshū · built for offline study<br>がんばって! 🌸</p>
+  </section>
+
+</div>
+
+<nav class="nav">
+  <button data-nav="home" class="on"><span class="ni">⛩️</span>Home</button>
+  <button data-nav="bookmarks"><span class="ni">★</span>Saved</button>
+  <button data-nav="settings"><span class="ni">⚙</span>Settings</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =================================================================
+   JLPT N5 Renshū — offline study app
+   Data: hiragana/katakana/grammar hardcoded below;
+         vocabulary.csv + kanji.json embedded further down.
+   ================================================================= */
+</script>
+<script src="data/kana.js"></script>
+<script src="data/grammar.js"></script>
+<script src="data/sentences.js"></script>
+<script src="data/mnemonics.js"></script>
+<script src="data/reading.js"></script>
+<script src="data/listening.js"></script>
+<script src="data/vocabulary.js"></script>
+<script src="data/kanji.js"></script>
+<script id="logic">
+"use strict";
+/* ---- static kana data ---- */
+
+/* ===================== helpers ===================== */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];} return a; };
+const sample = (arr,n) => shuffle(arr).slice(0,n);
+
+/* kana -> romaji map built from kana tables */
+const K2R = {};
+[...HIRAGANA, ...KATAKANA].forEach(([k,r])=>{ K2R[k]=r; });
+
+function kanaToRomaji(str){
+  let out=""; const s=str||"";
+  for(let i=0;i<s.length;i++){
+    const two=s.substr(i,2);
+    if(K2R[two]){ out+=K2R[two]; i++; continue; }
+    const c=s[i];
+    if(c==="っ"||c==="ッ"){ // gemination: double next consonant
+      const nx=s[i+1]||""; const nr=K2R[s.substr(i+1,2)]||K2R[nx]||"";
+      if(nr) out+=nr[0]; continue;
+    }
+    if(c==="ー"){ const m=out.match(/[aeiou]$/); if(m) out+=m[0]; continue; }
+    if(K2R[c]){ out+=K2R[c]; continue; }
+    out+=c;
+  }
+  return out;
+}
+
+function normalize(s){
+  return (s||"").toString().trim().toLowerCase()
+    .replace(/[。\.！!？\?、,]+$/,"")
+    .replace(/\s+/g," ");
+}
+/* split a meaning string into acceptable variants */
+function meaningVariants(m){
+  const set=new Set();
+  const raw=(m||"").split(/[,;\/]|、/).map(x=>x.trim()).filter(Boolean);
+  raw.forEach(p=>{
+    set.add(normalize(p));
+    set.add(normalize(p.replace(/\([^)]*\)/g,"")));      // drop (...)
+    set.add(normalize(p.replace(/^to\s+/i,"")));         // verbs: "to eat"->"eat"
+    set.add(normalize(p.replace(/^(a|an|the)\s+/i,""))); // drop articles
+  });
+  set.add(normalize(m));
+  set.delete("");
+  return [...set];
+}
+
+/* kanji reading variants: "い(く)、おこな(う)" -> accept いく, い, romaji, etc. */
+function readingVariants(str){
+  const set=new Set();
+  if(!str) return [];
+  str.split(/[、,]/).map(s=>s.trim()).filter(s=>s&&s!=="—").forEach(part=>{
+    const full=part.replace(/[()（）]/g,"");      // keep okurigana: い(く)->いく
+    const base=part.replace(/[（(].*?[)）]/g,"");  // drop okurigana: い(く)->い
+    [full,base].forEach(k=>{
+      if(!k) return;
+      set.add(normalize(k));
+      set.add(normalize(kanaToRomaji(k)));
+    });
+  });
+  set.delete("");
+  return [...set];
+}
+
+/* ===================== parse embedded data ===================== */
+function parseCSV(txt){
+  const lines=txt.trim().split(/\r?\n/);
+  const head=lines[0].split(",");
+  return lines.slice(1).map(line=>{
+    const cells=line.split(",");
+    const o={}; head.forEach((h,i)=>o[h.trim()]=(cells[i]||"").trim());
+    return o;
+  });
+}
+const VOCAB = parseCSV(VOCAB_CSV).filter(v=>v.kana && v.meaning);
+const KANJI_GROUPS = JSON.parse(KANJI_JSON);
+const KANJI = [];
+KANJI_GROUPS.forEach(g=> (g.kanji||[]).forEach(k=> KANJI.push({...k, category:g.category})));
+
+/* ===================== storage ===================== */
+const LS_KEY="jlptn5_v1";
+let DB = loadDB();
+function loadDB(){
+  try{ const d=JSON.parse(localStorage.getItem(LS_KEY)); if(d) return d; }catch(e){}
+  return { bookmarks:{hiragana:[],katakana:[],vocab:[],kanji:[],grammar:[]},
+           progress:{}, stats:{}, streak:{last:null,count:0}, reading:{},
+           settings:{answerMode:"mcq", dark:null, newPerDay:30} };
+}
+function saveDB(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(DB)); }catch(e){} }
+
+/* ===================== entry builders ===================== */
+function kanaEntries(table,setKey,includeExtra){
+  return table.filter(([,,t])=> includeExtra || t===0)
+    .map(([kana,romaji])=>({id:setKey+":"+kana, set:setKey, kana, romaji}));
+}
+function vocabEntries(){
+  return VOCAB.map((v,i)=>({id:"vocab:"+i, set:"vocab", kana:v.kana,
+    kanji:(v.kanji&&v.kanji!=="—"&&v.kanji!=="-")?v.kanji:"", meaning:v.meaning,
+    type:v.type||"", subcategory:v.subcategory||""}));
+}
+function kanjiEntries(){
+  return KANJI.map((k,i)=>({id:"kanji:"+i, set:"kanji", kanji:k.kanji, meaning:k.meaning,
+    onyomi:k.onyomi, kunyomi:k.kunyomi, category:k.category, subcategory:k.subcategory||""}));
+}
+function grammarEntries(){
+  return GRAMMAR.map((g,i)=>({id:"grammar:"+i, set:"grammar", ...g}));
+}
+function allEntries(set){
+  if(set==="hiragana") return kanaEntries(HIRAGANA,"hiragana",true);
+  if(set==="katakana") return kanaEntries(KATAKANA,"katakana",true);
+  if(set==="vocab") return vocabEntries();
+  if(set==="kanji") return kanjiEntries();
+  if(set==="grammar") return grammarEntries();
+  return [];
+}
+
+/* ===================== bookmarks & progress ===================== */
+function bmList(set){ return DB.bookmarks[set] || (DB.bookmarks[set]=[]); }
+function isBm(set,id){ return bmList(set).includes(id); }
+function toggleBm(set,id){
+  const l=bmList(set); const i=l.indexOf(id);
+  if(i>=0){ l.splice(i,1); } else { l.push(id); }
+  saveDB(); return i<0;
+}
+/* ---- Spaced repetition (compressed Leitner, tuned for a ~3-week run) ----
+   Box → days until next review. Wrong answers reset to box 1.
+   An item's box only moves on its FIRST review of the day, so repeats
+   within a session don't over-promote it. */
+const SRS_DAYS = {1:1, 2:2, 3:4, 4:7, 5:12};
+const LEECH_MISSES = 4;
+function dayMs(){ return 86400000; }
+function endOfToday(){ const d=new Date(); d.setHours(23,59,59,999); return d.getTime(); }
+function scheduleSRS(p, correct){
+  const today=todayStr();
+  if(p.srsDay===today) return;            // already scheduled today
+  p.srsDay=today;
+  p.box = correct ? Math.min((p.box||0)+1, 5) : 1;
+  p.due = Date.now() + SRS_DAYS[p.box]*dayMs();
+}
+function recordResult(entry,correct){
+  const p=DB.progress; const e=p[entry.id]||(p[entry.id]={seen:0,correct:0,incorrect:0});
+  e.seen++; if(correct)e.correct++; else e.incorrect++; e.last=Date.now();
+  scheduleSRS(e,correct);
+}
+function isLeech(p){ return !!p && p.incorrect>=LEECH_MISSES && p.incorrect>=p.correct; }
+/* entries (across all sets) whose review is due by end of today */
+function dueEntries(){
+  const cut=endOfToday(); const out=[];
+  ["hiragana","katakana","vocab","kanji","grammar"].forEach(set=>{
+    allEntries(set).forEach(e=>{ const p=DB.progress[e.id];
+      if(p && p.due && p.due<=cut) out.push(e); });
+  });
+  // leeches first, then soonest due
+  return out.sort((a,b)=>{
+    const pa=DB.progress[a.id], pb=DB.progress[b.id];
+    const la=isLeech(pa)?0:1, lb=isLeech(pb)?0:1;
+    if(la!==lb) return la-lb;
+    return (pa.due||0)-(pb.due||0);
+  });
+}
+/* unseen items to learn, interleaved across sets (kana last — usually known) */
+const NEW_PER_DAY = 30;
+function newPerDay(){ const n=DB.settings && DB.settings.newPerDay; return (n==null)? NEW_PER_DAY : n; }
+function newEntries(limit){
+  if(limit==null) limit=newPerDay();
+  const bySet=["vocab","kanji","grammar","hiragana","katakana"]
+    .map(set=>allEntries(set).filter(e=>!DB.progress[e.id]));
+  const out=[]; let i=0, guard=0;
+  while(out.length<limit && guard++<10000){
+    let added=false;
+    for(const arr of bySet){ if(arr[i]){ out.push(arr[i]); added=true; if(out.length>=limit) break; } }
+    if(!added) break; i++;
+  }
+  return out;
+}
+/* the daily study queue: clear due reviews first, then introduce new items */
+function dailyQueue(){ return dueEntries().concat(newEntries(newPerDay())); }
+/* entries flagged as leeches (repeatedly missed) across all sets */
+function leechEntries(){
+  const out=[];
+  ["hiragana","katakana","vocab","kanji","grammar"].forEach(set=>{
+    allEntries(set).forEach(e=>{ if(isLeech(DB.progress[e.id])) out.push(e); });
+  });
+  return out;
+}
+function bumpStats(set,first,repeats,bestStreak){
+  const s=DB.stats[set]||(DB.stats[set]={sessions:0,correct:0,incorrect:0,best:0});
+  s.sessions++; s.correct+=first; s.incorrect+=repeats;
+  if(bestStreak>s.best) s.best=bestStreak;
+}
+
+/* ===================== streak ===================== */
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function touchStreak(){
+  const t=todayStr(), st=DB.streak;
+  if(st.last===t) return;
+  const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
+  st.count = (st.last===y)? st.count+1 : 1;
+  st.last=t; saveDB();
+}
+
+/* ===================== UI utils ===================== */
+let toastT;
+function toast(msg){
+  const el=$("#toast"); el.textContent=msg; el.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove("show"),1800);
+}
+function show(screen){
+  clearQuizTimer();
+  $$(".screen").forEach(s=>s.classList.remove("active"));
+  $("#screen-"+screen).classList.add("active");
+  $$(".nav button").forEach(b=>b.classList.toggle("on", b.dataset.nav===screen));
+  document.getElementById("app").scrollTop=0;
+  window.scrollTo(0,0);
+}
+function applyTheme(){
+  let dark=DB.settings.dark;
+  if(dark===null) dark=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;
+  document.body.classList.toggle("dark",!!dark);
+  const sw=$("#darkSw"); if(sw) sw.classList.toggle("on",!!dark);
+  const meta=document.querySelector('meta[name=theme-color]');
+  if(meta) meta.setAttribute("content", dark?"#16151a":"#f4efe6");
+}
+
+const QUIZ_META = {
+  hiragana:{title:"Hiragana",jp:"ひらがな",emoji:"あ"},
+  katakana:{title:"Katakana",jp:"カタカナ",emoji:"ア"},
+  vocab:{title:"Vocabulary",jp:"語彙",emoji:"語"},
+  kanji:{title:"Kanji",jp:"漢字",emoji:"漢"},
+  grammar:{title:"Grammar",jp:"文法",emoji:"文"}
+};
+
+function renderHome(){
+  $("#streakNum").textContent = DB.streak.count||0;
+  const sub = DB.streak.last===todayStr()
+    ? "You studied today. 🌸" : (DB.streak.count>0?"Keep it going today!":"Start studying today!");
+  $("#streakSub").textContent=sub;
+  $("#vocabCount").textContent = VOCAB.length+" words · filter by type";
+  $("#kanjiCount").textContent = KANJI.length+" kanji · meaning & readings";
+  $("#grammarCount").textContent = GRAMMAR.length+" points · fill-in-the-blank";
+  const readDone=READING.filter(p=>DB.reading[p.id]&&DB.reading[p.id].read).length;
+  $("#readingCount").textContent = READING.length+" passages · "+(readDone?readDone+" read":"build fluency");
+  $("#sentencesCount").textContent = Object.keys(VOCAB_SENTENCES).length+" example sentences by type";
+  $("#kanjiBankCount").textContent = KANJI.length+" kanji · readings & tips";
+  $("#listeningCount").textContent = LISTENING.length+" practice sets · opens YouTube";
+  // spaced review: daily queue (due reviews + new) + leeches
+  const due=dueEntries(), nw=newEntries(newPerDay()), leech=leechEntries();
+  const total=due.length+nw.length;
+  const dueBadge=$("#dueBadge");
+  if(total){
+    const parts=[];
+    if(due.length) parts.push(due.length+" review"+(due.length>1?"s":""));
+    if(nw.length) parts.push(nw.length+" new");
+    $("#dueCount").textContent = parts.join(" + ");
+    dueBadge.hidden=false; dueBadge.textContent=total>99?"99+":total;
+  } else {
+    $("#dueCount").textContent = "All caught up — nothing to review ✓";
+    dueBadge.hidden=true;
+  }
+  const lc=$("#leechCard");
+  if(leech.length){ lc.hidden=false; $("#leechCount").textContent=leech.length+" word"+(leech.length>1?"s":"")+" you keep missing";
+    $("#leechBadge").textContent=leech.length>99?"99+":leech.length; }
+  else lc.hidden=true;
+}
+
+/* ===================== SETUP ===================== */
+let CFG = null;
+const QMODES = {
+  hiragana:[["k2r","かな → romaji"],["r2k","romaji → かな"],["mix","Mixed"]],
+  katakana:[["k2r","カナ → romaji"],["r2k","romaji → カナ"],["mix","Mixed"]],
+  vocab:[["kana2en","Kana → English"],["en2kana","English → Kana"],["kanji2read","Kanji → Reading"],["mix","Mixed"]],
+  kanji:[["k2en","Kanji → Meaning"],["k2read","Kanji → Reading"],["en2k","Meaning → Kanji"],["mix","Mixed"]],
+  grammar:[["fill","Fill in the blank"]]
+};
+function uniq(arr){ return [...new Set(arr)].filter(Boolean); }
+
+function openSetup(set, fromBm){
+  const m=QUIZ_META[set];
+  CFG={ set, source:fromBm?"bookmarks":"all", answerMode:DB.settings.answerMode||"mcq",
+        qmode:QMODES[set][0][0], includeExtra:false, filter:"", subfilter:"",
+        timed:false, perWord:15 };
+  if(set==="grammar") CFG.answerMode="mcq";
+  $("#setupTitle").textContent=m.title;
+  $("#setupSub").textContent=fromBm?"From your bookmarks":m.jp;
+  buildSetupPane();
+  show("setup");
+}
+
+function buildSetupPane(){
+  const set=CFG.set; let h="";
+  /* session mode: practice (repeat until correct) vs timed challenge */
+  h+=field("Session", chips([{v:"practice",l:"∞ Practice"},{v:"timed",l:"⏱ Timed"}],
+        CFG.timed?"timed":"practice", "sessionMode"));
+  if(CFG.timed){
+    h+=field("Time per word", chips([{v:"10",l:"10s"},{v:"15",l:"15s"},{v:"20",l:"20s"}],
+          String(CFG.perWord), "perWord"));
+  }
+  /* question mode */
+  if(QMODES[set].length>1){
+    h+=field("Question type", chips(QMODES[set].map(([v,l])=>({v,l})), CFG.qmode, "qmode"));
+  }
+  /* answer mode */
+  if(set!=="grammar"){
+    h+=field("Answer mode", chips([{v:"mcq",l:"⊞ Multiple choice"},{v:"typed",l:"⌨ Type answer"}], CFG.answerMode,"answerMode"));
+  }
+  /* kana extras */
+  if(set==="hiragana"||set==="katakana"){
+    h+=`<div class="field"><label>Characters</label>
+      <div class="toggle-row"><div><div class="t-lab">Include dakuten &amp; combos</div>
+      <div class="t-sub">が・きゃ etc. (${set==="hiragana"?HIRAGANA.length:KATAKANA.length} total vs 46 base)</div></div>
+      <div class="sw ${CFG.includeExtra?'on':''}" data-toggle="includeExtra"></div></div></div>`;
+  }
+  /* vocab type filter + cascading topic (subcategory) */
+  if(set==="vocab" && CFG.source!=="bookmarks"){
+    const types=uniq(VOCAB.map(v=>v.type));
+    h+=field("Word type", selectEl("filter", [["","All types ("+VOCAB.length+")"]].concat(
+      types.map(t=>[t, cap(t)+" ("+VOCAB.filter(v=>v.type===t).length+")"])), CFG.filter));
+    const base=VOCAB.filter(v=>!CFG.filter||v.type===CFG.filter);
+    const subs=uniq(base.map(v=>v.subcategory)).filter(Boolean).sort();
+    if(subs.length){
+      h+=field("Topic", selectEl("subfilter", [["","All topics ("+base.length+")"]].concat(
+        subs.map(s=>[s, s+" ("+base.filter(v=>v.subcategory===s).length+")"])), CFG.subfilter));
+    }
+  }
+  /* kanji category filter + cascading subcategory */
+  if(set==="kanji" && CFG.source!=="bookmarks"){
+    const cats=uniq(KANJI.map(k=>k.category));
+    h+=field("Category", selectEl("filter", [["","All categories ("+KANJI.length+")"]].concat(
+      cats.map(c=>[c, c+" ("+KANJI.filter(k=>k.category===c).length+")"])), CFG.filter));
+    const base=KANJI.filter(k=>!CFG.filter||k.category===CFG.filter);
+    const subs=uniq(base.map(k=>k.subcategory)).filter(Boolean).sort();
+    if(subs.length){
+      h+=field("Subcategory", selectEl("subfilter", [["","All ("+base.length+")"]].concat(
+        subs.map(s=>[s, s+" ("+base.filter(k=>k.subcategory===s).length+")"])), CFG.subfilter));
+    }
+  }
+  /* bookmark source note */
+  if(CFG.source==="bookmarks"){
+    h+=`<div class="field"><div class="toggle-row" style="background:var(--green-bg);border-color:var(--green)">
+      <div><div class="t-lab">★ Studying your bookmarks</div>
+      <div class="t-sub">${bmList(set).length} saved item(s)</div></div></div></div>`;
+  }
+  $("#setupPane").innerHTML=h;
+  wireSetup();
+  updateSetupCount();
+}
+function field(label,inner){ return `<div class="field"><label>${label}</label>${inner}</div>`; }
+function chips(items,cur,key){
+  return `<div class="choices" data-key="${key}">`+items.map(it=>
+    `<button class="chip ${it.v===cur?'on':''}" data-val="${it.v}">${it.l}</button>`).join("")+`</div>`;
+}
+function selectEl(key,opts,cur){
+  return `<select class="sel" data-key="${key}">`+opts.map(([v,l])=>
+    `<option value="${escAttr(v)}"${v===cur?" selected":""}>${escHtml(l)}</option>`).join("")+`</select>`;
+}
+function cap(s){ return s? s.charAt(0).toUpperCase()+s.slice(1): s; }
+function escHtml(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function escAttr(s){ return (s||"").replace(/"/g,"&quot;"); }
+
+function wireSetup(){
+  $$("#setupPane .choices").forEach(group=>{
+    const key=group.dataset.key;
+    group.querySelectorAll(".chip").forEach(ch=>{
+      ch.onclick=()=>{
+        if(key==="sessionMode"){ CFG.timed=(ch.dataset.val==="timed"); buildSetupPane(); return; }
+        CFG[key]=ch.dataset.val;
+        group.querySelectorAll(".chip").forEach(c=>c.classList.remove("on"));
+        ch.classList.add("on");
+        updateSetupCount();
+      };
+    });
+  });
+  $$("#setupPane .sw[data-toggle]").forEach(sw=>{
+    sw.onclick=()=>{ const k=sw.dataset.toggle; CFG[k]=!CFG[k]; sw.classList.toggle("on",CFG[k]); updateSetupCount(); };
+  });
+  $$("#setupPane select[data-key]").forEach(sel=>{
+    sel.onchange=()=>{
+      CFG[sel.dataset.key]=sel.value;
+      if(sel.dataset.key==="filter"){ CFG.subfilter=""; buildSetupPane(); }
+      else updateSetupCount();
+    };
+  });
+}
+
+/* build the pool of entries based on CFG */
+function buildPool(){
+  let pool=allEntries(CFG.set);
+  if(CFG.source==="bookmarks"){
+    const ids=new Set(bmList(CFG.set)); pool=pool.filter(e=>ids.has(e.id));
+  } else {
+    if(CFG.set==="vocab" && CFG.filter) pool=pool.filter(e=>e.type===CFG.filter);
+    if(CFG.set==="vocab" && CFG.subfilter) pool=pool.filter(e=>e.subcategory===CFG.subfilter);
+    if(CFG.set==="kanji" && CFG.filter) pool=pool.filter(e=>e.category===CFG.filter);
+    if(CFG.set==="kanji" && CFG.subfilter) pool=pool.filter(e=>e.subcategory===CFG.subfilter);
+  }
+  /* qmode that needs kanji: drop entries without kanji */
+  if(CFG.set==="vocab" && CFG.qmode==="kanji2read") pool=pool.filter(e=>e.kanji);
+  return pool;
+}
+function updateSetupCount(){
+  const n=buildPool().length;
+  const el=$("#setupCount"); const btn=$("#startBtn");
+  if(n===0){ el.textContent="No items match — adjust your selection."; btn.disabled=true; }
+  else { el.textContent=n+" item"+(n>1?"s":"")+" in this set"; btn.disabled=false; }
+}
+
+/* ===================== QUESTION SPEC ===================== */
+function concreteModes(set){ return QMODES[set].map(m=>m[0]).filter(m=>m!=="mix"); }
+function resolveMode(entry){
+  let m=CFG.qmode;
+  if(m==="mix"){ const opts=concreteModes(CFG.set).filter(x=>!(CFG.set==="vocab"&&x==="kanji2read"&&!entry.kanji));
+    m=opts[Math.random()*opts.length|0]; }
+  if(CFG.set==="vocab"&&m==="kanji2read"&&!entry.kanji) m="kana2en";
+  return m;
+}
+/* canonical display answer */
+function answerOf(e,m){
+  switch(m){
+    case "k2r": return e.romaji;
+    case "r2k": return e.kana;
+    case "kana2en": case "k2en": return (e.meaning||"").split(/[,;\/]|、/)[0].trim();
+    case "en2kana": case "kanji2read": return e.kana;
+    case "k2read": { const r=(e.onyomi&&e.onyomi!=="—"?e.onyomi:e.kunyomi)||""; return r.split(/[、,]/)[0].replace(/[（(].*?[)）]/g,"").trim()||r; }
+    case "en2k": return e.kanji;
+    case "fill": return e.o[e.a];
+  }
+  return "";
+}
+function acceptOf(e,m){
+  switch(m){
+    case "k2r": return [normalize(e.romaji)];
+    case "r2k": return uniq([normalize(e.kana), normalize(e.romaji)]);
+    case "kana2en": case "k2en": return meaningVariants(e.meaning);
+    case "en2kana": return uniq([normalize(e.kana), normalize(kanaToRomaji(e.kana))]);
+    case "kanji2read": return uniq([normalize(e.kana), normalize(kanaToRomaji(e.kana))]);
+    case "k2read": return uniq([...readingVariants(e.onyomi),...readingVariants(e.kunyomi)]);
+    case "en2k": return [normalize(e.kanji)];
+    case "fill": return [normalize(e.o[e.a])];
+  }
+  return [];
+}
+function promptOf(e,m){
+  switch(m){
+    case "k2r": return {text:e.kana,cls:"kana",tag:"Type the romaji",sub:""};
+    case "r2k": return {text:e.romaji,cls:"word",tag:"Which kana?",sub:""};
+    case "kana2en": return {text:e.kana,cls:"word",tag:"Meaning?",sub:e.kanji||""};
+    case "en2kana": return {text:e.meaning,cls:"en",tag:"Reading (kana)?",sub:""};
+    case "kanji2read": return {text:e.kanji,cls:"kanji",tag:"Reading?",sub:e.meaning||""};
+    case "k2en": return {text:e.kanji,cls:"kanji",tag:"Meaning?",sub:""};
+    case "k2read": return {text:e.kanji,cls:"kanji",tag:"On/Kun reading?",sub:e.meaning||""};
+    case "en2k": return {text:e.meaning,cls:"en",tag:"Which kanji?",sub:""};
+    case "fill": return {text:e.q,cls:"word",tag:e.pat,sub:""};
+  }
+  return {text:"?",cls:"word",tag:"",sub:""};
+}
+/* css class for option/answer text */
+function ansClass(m){
+  return ["k2r","kana2en","k2en"].includes(m) ? "en" : "";
+}
+
+/* ===================== SESSION ===================== */
+let S = null;
+let TIMER = null;
+function clearQuizTimer(){ if(TIMER){ clearInterval(TIMER); TIMER=null; } }
+/* Per-word countdown: resets every question, pauses once answered. */
+function startWordTimer(){
+  if(!S || !S.timed) return;
+  const wrap=$("#quizTimer"), bar=$("#timeBar"), fill=$("#timeBarFill");
+  wrap.hidden=false; bar.hidden=false;
+  S.timeLeft=S.perWord;
+  const paint=()=>{
+    wrap.querySelector(".t-clock").textContent=Math.max(0,S.timeLeft)+"s";
+    fill.style.transform="scaleX("+Math.max(0,S.timeLeft/S.perWord)+")";
+    const low=S.timeLeft<=5;
+    wrap.classList.toggle("low",low); bar.classList.toggle("low",low);
+  };
+  paint();
+  clearQuizTimer();
+  TIMER=setInterval(()=>{
+    if(S.answered){ clearQuizTimer(); return; }
+    S.timeLeft--; paint();
+    if(S.timeLeft<=0){ clearQuizTimer(); timeoutCurrent(); }
+  },1000);
+}
+/* Time ran out before answering: reveal answer as a miss, then advance normally. */
+function timeoutCurrent(){
+  if(!S || S.answered) return;
+  const e=curEntry(), m=S.curMode;
+  if(S.answerMode==="mcq" || e.set==="grammar"){
+    const correct=answerOf(e,m);
+    $$("#ansArea .opt").forEach(b=>{
+      b.classList.add("dim");
+      if(b.dataset.v===correct){ b.classList.add("correct"); b.classList.remove("dim"); }
+      b.style.pointerEvents="none";
+    });
+  } else {
+    const inp=$("#tinput"); if(inp){ inp.classList.add("wrong"); inp.disabled=true; }
+    const sb=$("#submitBtn"); if(sb) sb.textContent="Next →";
+  }
+  S.timedOut=(S.timedOut||0)+1;
+  grade(e,m,false,true);
+}
+function startQuiz(){
+  const pool=buildPool();
+  if(!pool.length){ toast("No items to study"); return; }
+  const items={}; pool.forEach(e=>items[e.id]=e);
+  const timed=!!CFG.timed; const perWord=Number(CFG.perWord)||15;
+  S={ set:CFG.set, mode:CFG.qmode, answerMode:CFG.answerMode, pool,
+      items, queue:shuffle(pool.map(e=>e.id)), total:pool.length,
+      retired:new Set(), missed:{}, firstTry:0, repeats:0,
+      streak:0, best:0, seenThisItem:{}, answered:false, curMode:null,
+      timed, perWord, timeLeft:perWord, timedOut:0 };
+  touchStreak();
+  show("quiz");
+  if(!timed){ $("#quizTimer").hidden=true; $("#timeBar").hidden=true; }
+  renderQuestion();
+}
+function curEntry(){ return S.items[S.queue[0]]; }
+
+/* pick a question mode for a single entry (used by interleaved review) */
+function reviewMode(e){
+  if(e.set==="grammar") return "fill";
+  let modes=concreteModes(e.set);
+  if(e.set==="vocab" && !e.kanji) modes=modes.filter(x=>x!=="kanji2read");
+  return modes.length? modes[Math.random()*modes.length|0] : "k2r";
+}
+/* launch an interleaved, cross-set review over a given pool */
+function startReview(pool,label){
+  if(!pool.length){ toast("Nothing due right now — well done!"); return; }
+  const items={}; pool.forEach(e=>items[e.id]=e);
+  S={ set:"review", review:true, label:label||"Daily review",
+      answerMode:DB.settings.answerMode||"mcq", pool,
+      items, queue:pool.map(e=>e.id), total:pool.length,
+      retired:new Set(), missed:{}, firstTry:0, repeats:0,
+      streak:0, best:0, seenThisItem:{}, answered:false, curMode:null,
+      timed:false, perWord:15, timeLeft:15, timedOut:0 };
+  touchStreak();
+  show("quiz");
+  $("#quizTimer").hidden=true; $("#timeBar").hidden=true;
+  renderQuestion();
+}
+
+function renderQuestion(){
+  if(!S.queue.length){ return endQuiz(true); }
+  const e=curEntry(); const m = e.set==="grammar"?"fill":(S.review?reviewMode(e):resolveMode(e)); S.curMode=m;
+  S.answered=false;
+  const p=promptOf(e,m);
+  const card=$("#quizCard");
+  $("#qTag").textContent=p.tag;
+  const pr=$("#qPrompt"); pr.className="qprompt "+p.cls; pr.textContent=p.text;
+  $("#qSub").textContent=p.sub||"";
+  // bookmark star
+  const star=$("#starBtn"); const on=isBm(e.set,e.id);
+  star.textContent=on?"★":"☆"; star.classList.toggle("on",on);
+  // retry badge
+  $("#repeatBadge").classList.toggle("show", (S.seenThisItem[e.id]||0)>0);
+  // progress
+  const done=S.retired.size, left=new Set(S.queue).size;
+  $("#progDone").textContent=done+" learned";
+  $("#progLeft").textContent=left+" in queue";
+  $("#progFill").style.width=(S.total? (done/S.total*100):0)+"%";
+  // answer area
+  $("#feedback").innerHTML="";
+  if(S.answerMode==="mcq" || e.set==="grammar") renderMCQ(e,m);
+  else renderTyped(e,m);
+  $("#quizFoot").innerHTML=`<button class="btn ghost block" id="endBtn2">End quiz</button>`;
+  $("#endBtn2").onclick=()=>endQuiz(false);
+  $("#swipeHint").style.display="block";
+  if(S.timed) startWordTimer();
+}
+
+function renderTyped(e,m){
+  const cls=ansClass(m);
+  $("#ansArea").innerHTML=
+    `<input class="tinput ${cls?'':''}" id="tinput" autocomplete="off" autocorrect="off"
+      autocapitalize="off" spellcheck="false" placeholder="Your answer…">
+     <button class="btn block" id="submitBtn" style="margin-top:12px">Check</button>`;
+  const inp=$("#tinput");
+  setTimeout(()=>inp.focus(),60);
+  const go=()=>{
+    if(S.answered){ next(); return; }
+    const val=inp.value; if(!val.trim()) return;
+    const ok=acceptOf(e,m).includes(normalize(val));
+    inp.classList.add(ok?"right":"wrong"); inp.disabled=true;
+    $("#submitBtn").textContent="Next →";
+    grade(e,m,ok);
+  };
+  $("#submitBtn").onclick=go;
+  inp.addEventListener("keydown",ev=>{ if(ev.key==="Enter"){ev.preventDefault(); go();}});
+}
+
+function mcqOptions(e,m){
+  const correct=answerOf(e,m);
+  if(e.set==="grammar"){ return {opts:shuffle(e.o.slice()), correct}; }
+  const others=S.pool.filter(x=>x.id!==e.id && x.set===e.set);
+  let distract=uniq(others.map(x=>answerOf(x,m)).filter(v=>v&&v!==correct));
+  distract=sample(distract,3);
+  // top up if pool too small
+  while(distract.length<3 && others.length){ const v=answerOf(others[Math.random()*others.length|0],m); if(v&&v!==correct&&!distract.includes(v))distract.push(v); else break; }
+  return {opts:shuffle([correct,...distract]), correct};
+}
+function renderMCQ(e,m){
+  const {opts,correct}=mcqOptions(e,m);
+  const oc = (e.set==="grammar")?"":ansClass(m);
+  $("#ansArea").innerHTML=`<div class="mcq">`+opts.map(o=>
+    `<button class="opt ${oc?'en':''}" data-v="${escAttr(o)}">${escHtml(o)}</button>`).join("")+`</div>`;
+  $$("#ansArea .opt").forEach(btn=>{
+    btn.onclick=()=>{
+      if(S.answered) return;
+      const ok=btn.dataset.v===correct;
+      $$("#ansArea .opt").forEach(b=>{
+        b.classList.add("dim");
+        if(b.dataset.v===correct){ b.classList.add("correct"); b.classList.remove("dim"); }
+      });
+      if(!ok){ btn.classList.add("wrong"); btn.classList.remove("dim"); }
+      grade(e,m,ok);
+    };
+  });
+}
+
+function grade(e,m,ok,timedOut){
+  S.answered=true; S.lastCorrect=ok;
+  clearQuizTimer();
+  const firstSee=(S.seenThisItem[e.id]||0)===0;
+  S.seenThisItem[e.id]=(S.seenThisItem[e.id]||0)+1;
+  recordResult(e,ok);
+  const fb=$("#feedback");
+  const ex=exampleHtml(e);
+  const tip=tipHtml(e);
+  const expl = e.set==="grammar"?`<div class="fb-note">${escHtml(e.e)}</div>`:"";
+  if(ok){
+    S.streak++; if(S.streak>S.best)S.best=S.streak;
+    if(!S.missed[e.id]) S.firstTry++; else S.repeats++;
+    fb.innerHTML=`<span class="fb-correct">✓ 正解 &nbsp;Correct</span>${expl}${ex}${tip}`;
+  } else {
+    S.streak=0; S.missed[e.id]=(S.missed[e.id]||0)+1;
+    const ans=answerOf(e,m);
+    const lead = timedOut ? `<span class="fb-wrong">⏱ Time's up — Answer:</span>` : `<span class="fb-wrong">✗ Answer:</span>`;
+    fb.innerHTML=`${lead} <span class="ans">${escHtml(ans)}</span>${expl}${ex}${tip}`;
+  }
+  // auto-advance only for quick MCQ correct answers with nothing to read
+  const hasReading = ex || tip || e.set==="grammar";
+  if((S.answerMode==="mcq"||e.set==="grammar") && ok && !hasReading){
+    setTimeout(()=>{ if(S.answered) next(); }, 760);
+  } else if(S.answerMode==="mcq"||e.set==="grammar"){
+    $("#quizFoot").innerHTML=`<button class="btn block" id="nextBtn">Next →</button>
+      <button class="btn ghost sm" id="endBtn2">End</button>`;
+    $("#nextBtn").onclick=next; $("#endBtn2").onclick=()=>endQuiz(false);
+  }
+  $("#swipeHint").style.display="none";
+}
+function exampleHtml(e){
+  if(e.set!=="vocab") return "";
+  const s=VOCAB_SENTENCES[e.kana]; if(!s) return "";
+  return `<div class="example"><div class="ex-jp">${escHtml(s.jp)}</div>`
+    +`<div class="ex-r">${escHtml(s.r)}</div><div class="ex-en">${escHtml(s.en)}</div></div>`;
+}
+function tipHtml(e){
+  if(e.set!=="kanji") return "";
+  const t=KANJI_TIPS[e.kanji]; if(!t) return "";
+  return `<div class="example tip"><div class="ex-en">💡 ${escHtml(t)}</div></div>`;
+}
+
+function next(){
+  const id=S.queue.shift();
+  if(S.lastCorrect){ S.retired.add(id); }
+  else if(!S.queue.includes(id)){ S.queue.push(id); }
+  renderQuestion();
+}
+
+function endQuiz(completed){
+  if(!S) return show("home");
+  const attempted=Object.keys(S.seenThisItem).length;
+  const totalMiss=Object.values(S.missed).reduce((a,b)=>a+b,0);
+  const withRepeats=[...S.retired].filter(id=>S.missed[id]>0).length;
+  bumpStats(S.set, S.firstTry, totalMiss, S.best); saveDB();
+  renderResults({completed,attempted,withRepeats});
+  show("results");
+}
+
+function renderResults({completed,attempted,withRepeats}){
+  const learned=S.retired.size, total=S.total;
+  const setTitle = S.review ? S.label : QUIZ_META[S.set].title;
+  if(S.review){
+    const allDone=completed && learned===total;
+    $("#resEmoji").textContent = allDone?"🎉": (S.firstTry>=attempted*0.7?"🌸":"💪");
+    $("#resTitle").textContent = allDone?"Review cleared!":"Review session done";
+    $("#resSubtitle").textContent = `${setTitle} · ${learned}/${total} reviewed`;
+    $("#statGrid").innerHTML=`
+      <div class="stat"><div class="v">${attempted}</div><div class="l">Reviewed</div></div>
+      <div class="stat"><div class="v green">${S.firstTry}</div><div class="l">First try ✓</div></div>
+      <div class="stat"><div class="v shu">${withRepeats}</div><div class="l">Needed repeats</div></div>
+      <div class="stat"><div class="v">${S.best}🔥</div><div class="l">Best streak</div></div>`;
+  } else if(S.timed){
+    const allDone=completed && learned===total;
+    $("#resEmoji").textContent = allDone?"🎉": (S.firstTry>=attempted*0.7?"🌸":"💪");
+    $("#resTitle").textContent = allDone?"Mastered — under the clock!":"Timed session done";
+    $("#resSubtitle").textContent = `${setTitle} · ${S.perWord}s per word · ${learned}/${total} learned`;
+    $("#statGrid").innerHTML=`
+      <div class="stat"><div class="v">${attempted}</div><div class="l">Attempted</div></div>
+      <div class="stat"><div class="v green">${S.firstTry}</div><div class="l">First try ✓</div></div>
+      <div class="stat"><div class="v shu">${S.timedOut||0}</div><div class="l">Timed out ⏱</div></div>
+      <div class="stat"><div class="v">${S.best}🔥</div><div class="l">Best streak</div></div>`;
+  } else {
+    const allDone=completed && learned===total;
+    $("#resEmoji").textContent = allDone?"🎉": (S.firstTry>=attempted*0.7?"🌸":"💪");
+    $("#resTitle").textContent = allDone?"Mastered the set!": "Session complete";
+    $("#resSubtitle").textContent = `${setTitle} · ${learned}/${total} learned`;
+    $("#statGrid").innerHTML=`
+      <div class="stat"><div class="v">${attempted}</div><div class="l">Attempted</div></div>
+      <div class="stat"><div class="v green">${S.firstTry}</div><div class="l">First try ✓</div></div>
+      <div class="stat"><div class="v shu">${withRepeats}</div><div class="l">Needed repeats</div></div>
+      <div class="stat"><div class="v">${S.best}🔥</div><div class="l">Best streak</div></div>`;
+  }
+
+  const missedIds=Object.keys(S.missed).filter(id=>S.missed[id]>0)
+    .sort((a,b)=>S.missed[b]-S.missed[a]);
+  const mt=$("#missedTitle"), ml=$("#missedList");
+  const bmAll=$("#bookmarkMissedBtn");
+  if(missedIds.length){
+    mt.style.display="flex"; bmAll.style.display="block";
+    ml.innerHTML=missedIds.slice(0,12).map(id=>{
+      const e=S.items[id]; const main=e.kanji||e.kana||e.q||QUIZ_META[e.set].emoji;
+      const label = e.set==="grammar"? e.pat : (e.meaning|| e.romaji || "");
+      const sub = e.set==="grammar"? "" : (e.kana&&e.kanji? e.kana : (e.onyomi||""));
+      return `<div class="missed-item"><div class="mk">${escHtml(main.length>4?QUIZ_META[e.set].emoji:main)}</div>
+        <div class="mi"><div class="t">${escHtml(label)}</div><div class="s">${escHtml(sub)}</div></div>
+        <div class="x">×${S.missed[id]}</div></div>`;
+    }).join("");
+    bmAll.onclick=()=>{
+      missedIds.forEach(id=>{ const e=S.items[id]; if(e && !isBm(e.set,id)) bmList(e.set).push(id); });
+      saveDB(); toast(missedIds.length+" missed item(s) bookmarked ★"); bmAll.disabled=true;
+    };
+    bmAll.disabled=false;
+  } else { mt.style.display="none"; ml.innerHTML=""; bmAll.style.display="none"; }
+
+  $("#restartBtn").onclick=()=>{ S.review ? startReview(S.pool, S.label) : startQuiz(); };
+}
+
+/* ===================== BOOKMARKS SCREEN ===================== */
+function entryById(set,id){ return allEntries(set).find(e=>e.id===id); }
+function bmDisplay(e){
+  if(e.set==="hiragana"||e.set==="katakana") return {main:e.kana,t:e.romaji,s:""};
+  if(e.set==="vocab") return {main:e.kanji||e.kana, t:e.meaning, s:(e.kanji?e.kana+" · ":"")+cap(e.type)};
+  if(e.set==="kanji") return {main:e.kanji, t:e.meaning, s:[e.onyomi,e.kunyomi].filter(x=>x&&x!=="—").join(" / ")};
+  if(e.set==="grammar") return {main:"文", t:e.pat, s:e.q};
+  return {main:"?",t:"",s:""};
+}
+function renderBookmarks(){
+  const body=$("#bookmarksBody"); const sets=["hiragana","katakana","vocab","kanji","grammar"];
+  let h=""; let any=false;
+  sets.forEach(set=>{
+    const ids=bmList(set); if(!ids.length) return; any=true;
+    h+=`<div class="bk-group"><h3>${QUIZ_META[set].emoji} ${QUIZ_META[set].title}
+        <span class="c">${ids.length}</span></h3>`;
+    h+=`<button class="btn shu sm" style="margin-bottom:10px" data-study="${set}">▶ Study these (${ids.length})</button>`;
+    ids.forEach(id=>{ const e=entryById(set,id); if(!e) return; const d=bmDisplay(e);
+      h+=`<div class="bk-item"><div class="bk-main">${escHtml(d.main)}</div>
+        <div class="bk-info"><div class="t">${escHtml(d.t)}</div><div class="s">${escHtml(d.s)}</div></div>
+        <button class="bk-rm" data-rm="${set}|${escAttr(id)}">✕</button></div>`;
+    });
+    h+=`</div>`;
+  });
+  if(!any) h=`<div class="empty"><div class="e-emoji">★</div>
+    <p>No bookmarks yet.<br>Tap the ☆ star on any question to save tricky items here for focused review.</p></div>`;
+  body.innerHTML=h;
+  $$("#bookmarksBody [data-study]").forEach(b=>b.onclick=()=>openSetup(b.dataset.study,true));
+  $$("#bookmarksBody [data-rm]").forEach(b=>b.onclick=()=>{
+    const [set,id]=b.dataset.rm.split("|"); const l=bmList(set); const i=l.indexOf(id);
+    if(i>=0)l.splice(i,1); saveDB(); renderBookmarks(); toast("Removed");
+  });
+}
+
+/* ===================== SETTINGS SCREEN ===================== */
+function renderSettings(){
+  const am=DB.settings.answerMode||"mcq";
+  const npd=newPerDay();
+  const npdOpts=[15,30,50,75];
+  $("#settingsDefaults").innerHTML=`
+    <div class="set-row"><div><div class="sl">Default answer mode</div>
+      <div class="ss">Used when you open a new quiz</div></div>
+      <div class="choices" data-key="answerMode">
+        <button class="chip ${am==='mcq'?'on':''}" data-val="mcq">MCQ</button>
+        <button class="chip ${am==='typed'?'on':''}" data-val="typed">Typed</button>
+      </div></div>
+    <div class="set-row"><div><div class="sl">New words per day</div>
+      <div class="ss">How many fresh items the daily review introduces</div></div>
+      <div class="choices" data-key="newPerDay">
+        ${npdOpts.map(n=>`<button class="chip ${npd===n?'on':''}" data-val="${n}">${n}</button>`).join("")}
+      </div></div>`;
+  $$('#settingsDefaults .choices').forEach(group=>{
+    const key=group.dataset.key;
+    group.querySelectorAll('.chip').forEach(ch=>ch.onclick=()=>{
+      if(key==="newPerDay") DB.settings.newPerDay=+ch.dataset.val;
+      else DB.settings[key]=ch.dataset.val;
+      saveDB();
+      group.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+      ch.classList.add('on');
+      if(key==="newPerDay") renderHome();
+    });
+  });
+}
+
+/* ---- export / import progress ---- */
+function exportData(){
+  try{
+    const data=localStorage.getItem(LS_KEY)||JSON.stringify(DB);
+    const blob=new Blob([data],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url; a.download="jlptn5-backup-"+todayStr()+".json";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+    toast("Backup downloaded ⬇");
+  }catch(e){ toast("Export failed"); }
+}
+function importData(file){
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      if(!d || typeof d!=="object" || !d.bookmarks) throw new Error("bad");
+      DB=d;
+      DB.bookmarks=DB.bookmarks||{};
+      ["hiragana","katakana","vocab","kanji","grammar"].forEach(k=>DB.bookmarks[k]=DB.bookmarks[k]||[]);
+      DB.progress=DB.progress||{}; DB.stats=DB.stats||{};
+      DB.streak=DB.streak||{last:null,count:0};
+      DB.reading=DB.reading||{};
+      DB.settings=DB.settings||{answerMode:"mcq",dark:null};
+      saveDB(); applyTheme(); renderHome(); renderSettings();
+      toast("Progress restored ✓");
+    }catch(e){ toast("Invalid backup file"); }
+  };
+  r.readAsText(file);
+}
+
+/* ===================== READING ===================== */
+let READ_CUR=null;
+function renderReadingList(){
+  const body=$("#readingListBody");
+  body.innerHTML=READING.map((p,i)=>{
+    const st=DB.reading[p.id]; const done=st&&st.read;
+    const best=st&&typeof st.best==="number"?st.best:null;
+    return `<button class="read-card" data-read="${i}">
+      ${done?`<span class="rc-done">✓ read${best!=null?" "+best+"/"+p.q.length:""}</span>`:""}
+      <div class="rc-top"><span class="rc-glyph">読</span><h3>${escHtml(p.titleEn)}</h3></div>
+      <div class="rc-jp">${escHtml(p.title)}</div>
+      <div class="rc-meta"><span class="pill">${escHtml(p.topic)}</span>
+        <span class="pill">${p.sentences.length} sentences</span>
+        <span class="pill">${p.q.length} questions</span></div>
+    </button>`;
+  }).join("");
+  $$("#readingListBody [data-read]").forEach(b=>b.onclick=()=>openReading(+b.dataset.read));
+}
+
+function openReading(i){
+  const p=READING[i]; READ_CUR={i, p, answers:{}, score:0};
+  touchStreak();
+  $("#rTitle").textContent=p.titleEn;
+  $("#rTopic").textContent=p.title+" · "+p.topic;
+  $("#togFuri").classList.remove("on"); $("#togEn").classList.remove("on");
+  renderReadingBody();
+  show("reading");
+}
+
+function renderReadingBody(){
+  const p=READ_CUR.p;
+  let h=`<div class="reading-body" id="readingText">`;
+  h+=p.sentences.map(s=>`<div class="r-sentence"><div class="r-jp">${escHtml(s.jp)}</div>
+    <div class="r-furi">${escHtml(s.r)}</div><div class="r-en">${escHtml(s.en)}</div></div>`).join("");
+  h+=`</div>`;
+  // glossary
+  h+=`<div class="r-section-title">📖 Words</div><div class="gloss">`+
+    p.gloss.map(g=>`<div class="gloss-row"><span class="gw">${escHtml(g.w)}</span>
+      <span class="gr">${escHtml(g.r)}</span><span class="gm">${escHtml(g.m)}</span></div>`).join("")+`</div>`;
+  // questions
+  h+=`<div class="r-section-title">✍️ Comprehension</div><div id="readingQs"></div>`;
+  h+=`<div id="readScore"></div>`;
+  h+=`<button class="btn ghost block" data-nav="reading-list" style="margin-top:14px">‹ Back to passages</button>`;
+  $("#readingBody").innerHTML=h;
+  applyReadingToggles();
+  renderReadingQs();
+  $$("#readingBody [data-nav]").forEach(b=>b.onclick=()=>navTo(b.dataset.nav));
+}
+
+function applyReadingToggles(){
+  const rt=$("#readingText"); if(!rt) return;
+  rt.classList.toggle("show-furi", $("#togFuri").classList.contains("on"));
+  rt.classList.toggle("show-en", $("#togEn").classList.contains("on"));
+}
+
+function renderReadingQs(){
+  const p=READ_CUR.p;
+  $("#readingQs").innerHTML=p.q.map((q,qi)=>{
+    const opts=q.o.map((o,oi)=>`<button class="opt" data-q="${qi}" data-o="${oi}">${escHtml(o)}</button>`).join("");
+    return `<div class="rq" id="rq${qi}"><div class="rq-q">${qi+1}. ${escHtml(q.q)}</div>
+      <div>${opts}</div><div class="rq-expl" id="expl${qi}"></div></div>`;
+  }).join("");
+  $$("#readingQs .opt").forEach(btn=>{
+    btn.onclick=()=>{
+      const qi=+btn.dataset.q, oi=+btn.dataset.o;
+      if(READ_CUR.answers[qi]!=null) return;       // already answered
+      const q=p.q[qi]; const ok=oi===q.a;
+      READ_CUR.answers[qi]=oi; if(ok) READ_CUR.score++;
+      $$(`#rq${qi} .opt`).forEach(b=>{
+        b.classList.add("dim");
+        if(+b.dataset.o===q.a){ b.classList.add("correct"); b.classList.remove("dim"); }
+      });
+      if(!ok){ btn.classList.add("wrong"); btn.classList.remove("dim"); }
+      const ex=$("#expl"+qi); ex.textContent=(ok?"✓ ":"✗ ")+q.e; ex.classList.add("show");
+      maybeFinishReading();
+    };
+  });
+}
+
+function maybeFinishReading(){
+  const p=READ_CUR.p;
+  if(Object.keys(READ_CUR.answers).length!==p.q.length) return;
+  const sc=READ_CUR.score, tot=p.q.length;
+  $("#readScore").innerHTML=`<div class="read-score">よくできました！ Score: ${sc} / ${tot}</div>`;
+  const prev=DB.reading[p.id]||{};
+  DB.reading[p.id]={read:true, best:Math.max(prev.best||0, sc)};
+  saveDB();
+}
+
+/* ===================== SENTENCE BANK ===================== */
+let SENT_INDEX=null, SENT_TYPE="", SENT_QUERY="";
+function buildSentenceIndex(){
+  if(SENT_INDEX) return SENT_INDEX;
+  SENT_INDEX=[];
+  Object.keys(VOCAB_SENTENCES).forEach(key=>{
+    const v=VOCAB.find(x=>x.kana===key);
+    const s=VOCAB_SENTENCES[key];
+    SENT_INDEX.push({
+      key, jp:s.jp, r:s.r, en:s.en,
+      word:(v&&v.kanji&&v.kanji!=="—"&&v.kanji!=="-")?v.kanji:key,
+      kana:key, meaning:v?v.meaning:"", type:v?v.type:"other",
+      subcategory:v?v.subcategory:""
+    });
+  });
+  SENT_INDEX.sort((a,b)=> a.type===b.type ? a.kana.localeCompare(b.kana,"ja") : a.type.localeCompare(b.type));
+  return SENT_INDEX;
+}
+function renderSentences(){
+  const idx=buildSentenceIndex();
+  const types=uniq(idx.map(s=>s.type));
+  const order=["verb","adjective","noun","adverb","expression","counter","number","pronoun","demonstrative","question word","conjunction","other"];
+  types.sort((a,b)=>order.indexOf(a)-order.indexOf(b));
+  // type filter chips
+  const chipsArr=[{v:"",l:"All ("+idx.length+")"}].concat(types.map(t=>({v:t,l:cap(t)+" ("+idx.filter(s=>s.type===t).length+")"})));
+  $("#sentTypeChips").innerHTML=chipsArr.map(c=>
+    `<button class="chip ${c.v===SENT_TYPE?'on':''}" data-stype="${escAttr(c.v)}">${escHtml(c.l)}</button>`).join("");
+  $$("#sentTypeChips .chip").forEach(ch=>ch.onclick=()=>{ SENT_TYPE=ch.dataset.stype; renderSentences(); });
+  // list (type filter + free-text search)
+  const q=SENT_QUERY.trim().toLowerCase();
+  const list=idx.filter(s=>{
+    if(SENT_TYPE && s.type!==SENT_TYPE) return false;
+    if(!q) return true;
+    return (s.word+" "+s.kana+" "+s.meaning+" "+s.jp+" "+s.r+" "+s.en).toLowerCase().includes(q);
+  });
+  const counter = q ? `${list.length} match${list.length!==1?"es":""} for “${escHtml(SENT_QUERY.trim())}”`
+                    : `${list.length} sentence${list.length!==1?"s":""}`;
+  let h=`<div class="sent-count">${counter}</div><div class="sentences-body" id="sentBody">`;
+  if(!list.length){
+    h+=`<div class="empty-note">No sentences match. Try a different word or clear the search.</div>`;
+  }
+  h+=list.map(s=>`<div class="sent-card">
+      <div class="sent-head"><span class="sword">${escHtml(s.word)}</span>
+        <span class="sr">${escHtml(s.kana)}</span><span class="sm">${escHtml(s.meaning)}</span>
+        <span class="stype">${escHtml(s.type)}</span></div>
+      <div class="sent-jp">${escHtml(s.jp)}</div>
+      <div class="sent-furi">${escHtml(s.r)}</div>
+      <div class="sent-en">${escHtml(s.en)}</div></div>`).join("");
+  h+=`</div>`;
+  $("#sentencesBody").innerHTML=h;
+  applySentenceToggles();
+}
+function applySentenceToggles(){
+  const b=$("#sentBody"); if(!b) return;
+  b.classList.toggle("show-furi", $("#sTogFuri").classList.contains("on"));
+  b.classList.toggle("show-en", $("#sTogEn").classList.contains("on"));
+}
+
+/* ===================== LISTENING ===================== */
+let LISTEN_TYPE="";
+function ytSearchUrl(q){ return "https://www.youtube.com/results?search_query="+encodeURIComponent(q); }
+function renderListening(){
+  const types=uniq(LISTENING.map(i=>i.type));
+  const chipsArr=[{v:"",l:"All"}].concat(types.map(t=>({v:t,l:t})));
+  $("#listenTypeChips").innerHTML=chipsArr.map(c=>
+    `<button class="chip ${c.v===LISTEN_TYPE?'on':''}" data-ltype="${escAttr(c.v)}">${escHtml(c.l)}</button>`).join("");
+  $$("#listenTypeChips .chip").forEach(ch=>ch.onclick=()=>{ LISTEN_TYPE=ch.dataset.ltype; renderListening(); });
+  const list=LISTENING.filter(i=>!LISTEN_TYPE||i.type===LISTEN_TYPE);
+  $("#listeningBody").innerHTML = list.map((i,idx)=>{
+    const action = i.yt
+      ? `<button class="btn sm listen-play" data-yt="${escAttr(i.yt)}" data-i="${idx}">▶ Play here</button>
+         <a class="listen-link" href="https://www.youtube.com/watch?v=${escAttr(i.yt)}" target="_blank" rel="noopener noreferrer">YouTube ↗</a>`
+      : `<a class="btn sm listen-go" href="${escAttr(ytSearchUrl(i.q))}" target="_blank" rel="noopener noreferrer">▶ Watch on YouTube ↗</a>`;
+    return `<div class="listen-card" id="lc${idx}">
+        <div class="listen-head"><span class="ltag">${escHtml(i.type)}</span>
+          <span class="lsub">${escHtml(i.titleEn)}</span></div>
+        <div class="listen-title">${escHtml(i.title)}</div>
+        <div class="listen-desc">${escHtml(i.desc)}</div>
+        <div class="listen-actions">${action}</div>
+      </div>`;
+  }).join("");
+  // inline embed players (only for items that pin a video id)
+  $$("#listeningBody .listen-play").forEach(btn=>btn.onclick=()=>{
+    const id=btn.dataset.yt, card=$("#lc"+btn.dataset.i);
+    const wrap=document.createElement("div"); wrap.className="listen-embed";
+    wrap.innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}"
+      title="YouTube video" loading="lazy" allowfullscreen
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>`;
+    card.querySelector(".listen-actions").replaceWith(wrap);
+  });
+}
+
+/* ===================== MOCK EXAM =====================
+   Faithfully covers the scored "Language Knowledge + Reading" block (≈120 pts,
+   38/120 sectional pass). Listening (60 pts) is practiced separately, so the
+   estimate here is for that block, clearly labelled. */
+let MOCK=null;
+const MOCK_VOCAB=20, MOCK_GRAMMAR=15, MOCK_READING=10;
+function fmtClock(s){ const m=Math.floor(s/60); return m+":"+String(s%60).padStart(2,"0"); }
+function mockOptions(correct,pool){
+  let d=uniq(pool.filter(v=>v&&v!==correct)); d=shuffle(d).slice(0,3);
+  return shuffle([correct,...d]);
+}
+function buildMock(){
+  const items=[];
+  // Vocabulary
+  const allV=allEntries("vocab");
+  shuffle(allV).slice(0,MOCK_VOCAB).forEach(e=>{
+    const modes = e.kanji ? ["kana2en","kanji2read","en2kana"] : ["kana2en","en2kana"];
+    const m = modes[Math.random()*modes.length|0];
+    const correct=answerOf(e,m); if(!correct) return;
+    const opts=mockOptions(correct, allV.filter(x=>x.id!==e.id).map(x=>answerOf(x,m)));
+    if(opts.length<2) return;
+    const p=promptOf(e,m);
+    items.push({section:"Vocabulary", entry:e, tag:p.tag, prompt:p.text, promptCls:p.cls,
+      sub:p.sub, ansCls:(m==="kana2en"?"en":""), options:opts, correct, expl:"", chosen:null});
+  });
+  // Grammar
+  shuffle(GRAMMAR).slice(0,MOCK_GRAMMAR).forEach(g=>{
+    items.push({section:"Grammar", entry:{id:"grammar:"+GRAMMAR.indexOf(g), set:"grammar"},
+      tag:g.pat, prompt:g.q, promptCls:"sent", sub:"", ansCls:"",
+      options:shuffle(g.o.slice()), correct:g.o[g.a], expl:g.e, chosen:null});
+  });
+  // Reading
+  const rq=[];
+  shuffle(READING).forEach(p=> p.q.forEach(q=> rq.push({p,q})));
+  rq.slice(0,MOCK_READING).forEach(({p,q})=>{
+    items.push({section:"Reading", entry:null, tag:"Reading", prompt:q.q, promptCls:"sent",
+      sub:"", ansCls:"", passage:p, options:shuffle(q.o.slice()), correct:q.o[q.a], expl:q.e, chosen:null});
+  });
+  return items;
+}
+function startMock(){
+  const items=buildMock();
+  if(items.length<10){ toast("Not enough content for a mock"); return; }
+  const dur=items.length*55;   // ~55s per question
+  if(!confirm(`Timed mock exam: ${items.length} questions, ${Math.round(dur/60)} minutes.\nVocabulary, grammar and reading — no feedback until the end. Start?`)) return;
+  MOCK={items, idx:0, dur, timeLeft:dur};
+  show("mock");
+  renderMockQ();
+  startMockTimer();
+}
+function startMockTimer(){
+  const wrap=$("#mockTimer");
+  const paint=()=>{ wrap.querySelector(".t-clock").textContent=fmtClock(Math.max(0,MOCK.timeLeft));
+    wrap.classList.toggle("low", MOCK.timeLeft<=60); };
+  paint(); clearQuizTimer();
+  TIMER=setInterval(()=>{ MOCK.timeLeft--; paint(); if(MOCK.timeLeft<=0){ clearQuizTimer(); endMock(); } },1000);
+}
+function renderMockQ(){
+  const it=MOCK.items[MOCK.idx];
+  $("#mockSection").textContent=it.section;
+  $("#mockCounter").textContent=(MOCK.idx+1)+" / "+MOCK.items.length;
+  $("#mockProg").style.width=(MOCK.idx/MOCK.items.length*100)+"%";
+  const pw=$("#mockPassage");
+  if(it.passage){ pw.hidden=false;
+    pw.innerHTML=`<div class="mp-title">${escHtml(it.passage.title)}</div>`
+      +it.passage.sentences.map(s=>`<div class="mp-line">${escHtml(s.jp)}</div>`).join(""); }
+  else { pw.hidden=true; pw.innerHTML=""; }
+  $("#mockTag").textContent=it.tag||it.section;
+  const pr=$("#mockPrompt"); pr.className="qprompt "+(it.promptCls||"sent"); pr.textContent=it.prompt;
+  $("#mockSub").textContent=it.sub||"";
+  $("#mockAns").innerHTML=`<div class="mcq">`+it.options.map(o=>
+    `<button class="opt ${it.ansCls}" data-v="${escAttr(o)}">${escHtml(o)}</button>`).join("")+`</div>`;
+  $$("#mockAns .opt").forEach(b=>{
+    if(b.dataset.v===it.chosen) b.classList.add("sel");
+    b.onclick=()=>{ it.chosen=b.dataset.v;
+      $$("#mockAns .opt").forEach(x=>x.classList.remove("sel")); b.classList.add("sel");
+      const nx=$("#mockNext"); if(nx) nx.disabled=false; };
+  });
+  const last=MOCK.idx===MOCK.items.length-1;
+  $("#mockFoot").innerHTML=`<button class="btn block" id="mockNext" ${it.chosen?"":"disabled"}>${last?"Finish exam":"Next →"}</button>
+    <button class="btn ghost sm" id="mockSkipBtn">Skip</button>`;
+  $("#mockNext").onclick=()=>{ if(last) endMock(); else { MOCK.idx++; renderMockQ(); } };
+  $("#mockSkipBtn").onclick=()=>{ if(last) endMock(); else { MOCK.idx++; renderMockQ(); } };
+}
+function endMock(){
+  clearQuizTimer();
+  if(!MOCK) return show("home");
+  const sec={Vocabulary:{c:0,t:0}, Grammar:{c:0,t:0}, Reading:{c:0,t:0}};
+  MOCK.items.forEach(it=>{
+    sec[it.section].t++;
+    const ok=it.chosen===it.correct;
+    if(ok) sec[it.section].c++;
+    if(it.entry) recordResult(it.entry, ok);   // feed SRS / leech tracking
+  });
+  saveDB();
+  MOCK.sec=sec;
+  renderMockResult();
+  show("mock-result");
+}
+function renderMockResult(){
+  const s=MOCK.sec;
+  const correct=s.Vocabulary.c+s.Grammar.c+s.Reading.c;
+  const total=s.Vocabulary.t+s.Grammar.t+s.Reading.t;
+  const pct=total?correct/total:0;
+  const est=Math.round(pct*120);
+  const strong=pct>=0.6, ok=pct>=0.4;
+  $("#mockEmoji").textContent= strong?"🎉":(ok?"💪":"📚");
+  $("#mockVerdict").textContent= strong?"On track to pass":(ok?"Borderline — keep drilling":"More practice needed");
+  $("#mockResultSub").textContent=`${correct} / ${total} correct · ${Math.round(pct*100)}%`;
+  const row=(name,o)=>{ const p=o.t?Math.round(o.c/o.t*100):0;
+    return `<div class="ms-row"><div class="ms-top"><span>${name}</span><span>${o.c}/${o.t}</span></div>
+      <div class="ms-track"><div class="ms-fill" style="width:${p}%"></div></div></div>`; };
+  $("#mockScoreCard").innerHTML=
+    `<div class="ms-card">
+      ${row("Vocabulary",s.Vocabulary)}${row("Grammar",s.Grammar)}${row("Reading",s.Reading)}
+      <div class="ms-est">Estimated section score <b>≈ ${est} / 120</b>
+        <span class="ms-pass">(pass line 38)</span></div>
+      <div class="ms-note">Estimate for Language Knowledge + Reading only. Listening (0–60) is
+        practiced separately; the full exam passes at 80/180 with section minimums.</div>
+    </div>`;
+  // review list
+  $("#mockReviewWrap").innerHTML=`<div class="sec-title"><span>復習</span><h2>Review</h2><div class="rule"></div></div>`
+    + MOCK.items.map((it,i)=>{
+      const right=it.chosen===it.correct;
+      const your = it.chosen ? escHtml(it.chosen) : "<i>no answer</i>";
+      return `<div class="mr-item ${right?'ok':'no'}">
+        <div class="mr-q"><span class="mr-n">${i+1}.</span> ${escHtml(it.prompt)}</div>
+        <div class="mr-a">${right?"✓":"✗"} Your answer: <b>${your}</b>${right?"":` · Correct: <b>${escHtml(it.correct)}</b>`}</div>
+        ${it.expl?`<div class="mr-e">${escHtml(it.expl)}</div>`:""}</div>`;
+    }).join("");
+}
+
+/* ===================== KANJI BANK ===================== */
+let KB_CAT="";
+function kbCardHtml(k){
+  const on=(k.onyomi&&k.onyomi!=="—")?`<span class="lbl">ON</span><span class="on-r">${escHtml(k.onyomi)}</span> `:"";
+  const kun=(k.kunyomi&&k.kunyomi!=="—")?`<span class="lbl">KUN</span><span class="kun-r">${escHtml(k.kunyomi)}</span>`:"";
+  const voc=(k.vocabulary&&k.vocabulary!=="—")?`<div class="kb-vocab">📎 ${escHtml(k.vocabulary)}</div>`:"";
+  const tip=KANJI_TIPS[k.kanji]?`<div class="kb-tip">💡 ${escHtml(KANJI_TIPS[k.kanji])}</div>`:"";
+  return `<div class="kb-card"><div class="kb-glyph">${escHtml(k.kanji)}</div>
+    <div class="kb-info"><div class="kb-mean">${escHtml(k.meaning)}</div>
+      <div class="kb-read">${on}${kun}</div>${voc}${tip}</div></div>`;
+}
+function renderKanjiBank(){
+  const cats=uniq(KANJI.map(k=>k.category));
+  const chipsArr=[{v:"",l:"All ("+KANJI.length+")"}].concat(
+    cats.map(c=>({v:c,l:c+" ("+KANJI.filter(k=>k.category===c).length+")"})));
+  $("#kbCatChips").innerHTML=chipsArr.map(c=>
+    `<button class="chip ${c.v===KB_CAT?'on':''}" data-kbcat="${escAttr(c.v)}">${escHtml(c.l)}</button>`).join("");
+  $$("#kbCatChips .chip").forEach(ch=>ch.onclick=()=>{ KB_CAT=ch.dataset.kbcat; renderKanjiBank(); });
+  let h="";
+  if(KB_CAT){
+    h=KANJI.filter(k=>k.category===KB_CAT).map(kbCardHtml).join("");
+  } else {
+    cats.forEach(c=>{
+      h+=`<div class="kb-cat-head">${escHtml(c)}</div>`;
+      h+=KANJI.filter(k=>k.category===c).map(kbCardHtml).join("");
+    });
+  }
+  $("#kanjiBankBody").innerHTML=h;
+}
+
+/* ===================== gestures & nav ===================== */
+function skipCurrent(){
+  if(!S||!S.queue.length) return;
+  if(!S.answered && !confirm("Skip this question? It will come back later.")) return;
+  if(!S.answered){ const id=S.queue.shift(); S.queue.push(id); renderQuestion(); }
+  else next();
+}
+function navTo(screen){
+  if(screen==="home") renderHome();
+  if(screen==="bookmarks") renderBookmarks();
+  if(screen==="settings") renderSettings();
+  if(screen==="reading-list") renderReadingList();
+  if(screen==="sentences") renderSentences();
+  if(screen==="kanji-bank") renderKanjiBank();
+  if(screen==="listening") renderListening();
+  show(screen);
+}
+
+function init(){
+  applyTheme(); renderHome();
+  // home quiz cards
+  $$(".qcard[data-quiz]").forEach(c=>c.onclick=()=>openSetup(c.dataset.quiz,false));
+  // spaced review
+  $("#dueCard").onclick=()=>startReview(dailyQueue(),"Daily review");
+  $("#leechCard").onclick=()=>startReview(leechEntries(),"Trouble words");
+  // reading
+  $("#readingCard").onclick=()=>navTo("reading-list");
+  $("#togFuri").onclick=()=>{ $("#togFuri").classList.toggle("on"); applyReadingToggles(); };
+  $("#togEn").onclick=()=>{ $("#togEn").classList.toggle("on"); applyReadingToggles(); };
+  // sentence bank
+  $("#sentencesCard").onclick=()=>navTo("sentences");
+  $("#sTogFuri").onclick=()=>{ $("#sTogFuri").classList.toggle("on"); applySentenceToggles(); };
+  $("#sTogEn").onclick=()=>{ $("#sTogEn").classList.toggle("on"); applySentenceToggles(); };
+  $("#sentSearch").addEventListener("input", e=>{ SENT_QUERY=e.target.value; renderSentences(); });
+  // kanji bank
+  $("#kanjiBankCard").onclick=()=>navTo("kanji-bank");
+  // listening
+  $("#listeningCard").onclick=()=>navTo("listening");
+  // mock exam
+  $("#mockCard").onclick=startMock;
+  $("#mockEndBtn").onclick=()=>{ if(confirm("End the exam now and see your score? Unanswered questions count as wrong.")) endMock(); };
+  $("#mockRetry").onclick=startMock;
+  $$("[data-nav]").forEach(b=>b.onclick=()=>navTo(b.dataset.nav));
+  // start
+  $("#startBtn").onclick=startQuiz;
+  // end (top ✕)
+  $("#endBtn").onclick=()=>{ if(confirm("End this quiz now?")) endQuiz(false); };
+  // bookmark star
+  $("#starBtn").onclick=()=>{
+    if(!S) return; const e=curEntry(); const on=toggleBm(e.set,e.id);
+    $("#starBtn").textContent=on?"★":"☆"; $("#starBtn").classList.toggle("on",on);
+    toast(on?"Bookmarked ★":"Removed");
+  };
+  // dark toggle
+  $("#darkSw").onclick=()=>{ const cur=document.body.classList.contains("dark");
+    DB.settings.dark=!cur; saveDB(); applyTheme(); };
+  // reset
+  $("#resetBtn").onclick=()=>{
+    if(confirm("Reset ALL progress, streak and bookmarks? This cannot be undone.")){
+      const dark=DB.settings.dark; localStorage.removeItem(LS_KEY); DB=loadDB();
+      DB.settings.dark=dark; saveDB(); applyTheme(); renderSettings(); renderHome();
+      toast("Everything reset");
+    }
+  };
+  // export / import
+  $("#exportBtn").onclick=exportData;
+  $("#importBtn").onclick=()=>$("#importFile").click();
+  $("#importFile").onchange=e=>{ const f=e.target.files[0]; if(f) importData(f); e.target.value=""; };
+  // swipe-left to skip on quiz card
+  let sx=0,sy=0;
+  const qb=$("#screen-quiz");
+  qb.addEventListener("touchstart",e=>{ sx=e.changedTouches[0].clientX; sy=e.changedTouches[0].clientY; },{passive:true});
+  qb.addEventListener("touchend",e=>{
+    const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+    if(dx<-60 && Math.abs(dy)<50) skipCurrent();
+  },{passive:true});
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init);
+else init();
+
+/* PWA: register service worker (only over http/https, not file://) */
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
+  });
+}
+
+</script>
+</body>
+</html>

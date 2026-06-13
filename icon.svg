@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- full-bleed background keeps the icon safe when masked to any shape -->
+  <rect width="512" height="512" fill="#2b3a67"/>
+  <!-- vermillion seal block, centered within the maskable safe zone -->
+  <rect x="146" y="126" width="220" height="260" rx="26" fill="#c1432b"/>
+  <text x="256" y="232" text-anchor="middle" font-family="'Hiragino Mincho ProN','Yu Mincho',serif"
+        font-size="150" font-weight="700" fill="#fbf8f1">N5</text>
+  <text x="256" y="350" text-anchor="middle" font-family="'Hiragino Mincho ProN','Yu Mincho',serif"
+        font-size="96" font-weight="700" fill="#fbf8f1">語</text>
+</svg>
