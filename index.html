@@ -418,6 +418,17 @@ body.dark .opt.sel{background:rgba(143,166,224,.16);}
 .mr-n{color:var(--ink-faint);font-family:var(--sans);font-weight:700;}
 .mr-a{font-size:13px;color:var(--ink-soft);margin-top:5px;}
 .mr-e{font-size:12px;color:var(--ink-faint);margin-top:4px;line-height:1.5;}
+/* verb & counter quiz */
+.vq-progress{text-align:center;font-size:12px;color:var(--ink-faint);margin:8px 0;}
+.vq-score{color:var(--green);font-weight:600;}
+.vq-card{background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:16px 18px;margin:0 20px 14px;text-align:center;box-shadow:var(--shadow);}
+.vq-en{font-family:var(--serif);font-size:14px;color:var(--ink-faint);margin-bottom:6px;}
+.vq-dict{font-family:var(--jp);font-size:34px;font-weight:600;color:var(--ai);}
+.vq-grp{font-size:11px;font-weight:700;color:var(--ink-faint);margin-left:6px;vertical-align:middle;
+  background:var(--paper-2);padding:2px 7px;border-radius:20px;}
+.vq-target{font-size:15px;font-weight:600;color:var(--shu);margin-top:8px;}
+.vq-fb{text-align:center;min-height:28px;padding:6px 0;}
 /* kanji bank */
 .kb-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;
   margin-bottom:12px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:flex-start;}
@@ -474,6 +485,8 @@ body.dark .opt.sel{background:rgba(143,166,224,.16);}
       <button class="qcard full" data-quiz="vocab"><div class="big">語</div><div style="flex:1"><h3>Vocabulary</h3><p id="vocabCount">— words · filter by type</p></div></button>
       <button class="qcard full" data-quiz="kanji"><div class="big">漢</div><div style="flex:1"><h3>Kanji</h3><p id="kanjiCount">— kanji · meaning &amp; readings</p></div></button>
       <button class="qcard full" data-quiz="grammar"><div class="big">文</div><div style="flex:1"><h3>Grammar</h3><p id="grammarCount">— points · fill-in-the-blank</p></div></button>
+      <button class="qcard full" id="verbCard"><div class="big">活</div><div style="flex:1"><h3>Verb conjugation</h3><p id="verbCount">— verbs · ます/ない/て forms</p></div></button>
+      <button class="qcard full" id="counterCard"><div class="big">助</div><div style="flex:1"><h3>Counters</h3><p id="counterCount">— counters · sound changes</p></div></button>
     </div>
     <div class="sec-title"><span>模試</span><h2>Mock exam</h2><div class="rule"></div></div>
     <div class="grid">
@@ -535,6 +548,22 @@ body.dark .opt.sel{background:rgba(143,166,224,.16);}
       <button class="btn ghost block" data-nav="home">Home</button>
       <button class="btn block" id="mockRetry">New mock</button>
     </div>
+  </section>
+
+  <!-- VERB CONJUGATION -->
+  <section id="screen-verbs" class="screen scroll">
+    <div class="topbar"><div class="iconbtn" data-nav="home">‹</div>
+      <div class="brand" style="margin-left:4px"><h1>Verb conjugation</h1><p>活用 · ます / ない / て</p></div></div>
+    <div id="verbChips" class="choices" style="padding:4px 20px 6px;flex-wrap:wrap;"></div>
+    <div id="verbQuizBody" class="pane"></div>
+  </section>
+
+  <!-- COUNTERS -->
+  <section id="screen-counters" class="screen scroll">
+    <div class="topbar"><div class="iconbtn" data-nav="home">‹</div>
+      <div class="brand" style="margin-left:4px"><h1>Counters</h1><p>助数詞 · sound changes</p></div></div>
+    <div id="counterChips" class="choices" style="padding:4px 20px 6px;flex-wrap:wrap;"></div>
+    <div id="counterQuizBody" class="pane"></div>
   </section>
 
   <!-- SETUP -->
@@ -704,6 +733,8 @@ body.dark .opt.sel{background:rgba(143,166,224,.16);}
 <script src="data/mnemonics.js"></script>
 <script src="data/reading.js"></script>
 <script src="data/listening.js"></script>
+<script src="data/verbs.js"></script>
+<script src="data/counters.js"></script>
 <script src="data/vocabulary.js"></script>
 <script src="data/kanji.js"></script>
 <script id="logic">
@@ -793,10 +824,22 @@ KANJI_GROUPS.forEach(g=> (g.kanji||[]).forEach(k=> KANJI.push({...k, category:g.
 const LS_KEY="jlptn5_v1";
 let DB = loadDB();
 function loadDB(){
-  try{ const d=JSON.parse(localStorage.getItem(LS_KEY)); if(d) return d; }catch(e){}
-  return { bookmarks:{hiragana:[],katakana:[],vocab:[],kanji:[],grammar:[]},
+  const defaults = { bookmarks:{hiragana:[],katakana:[],vocab:[],kanji:[],grammar:[]},
            progress:{}, stats:{}, streak:{last:null,count:0}, reading:{},
            settings:{answerMode:"mcq", dark:null, newPerDay:30} };
+  try{
+    const d=JSON.parse(localStorage.getItem(LS_KEY));
+    if(d){
+      // merge in any new top-level keys from defaults (preserves user data)
+      Object.keys(defaults).forEach(k=>{
+        if(!(k in d)) d[k]=defaults[k];
+        else if(k==="settings") Object.keys(defaults.settings).forEach(sk=>{ if(!(sk in d.settings)) d.settings[sk]=defaults.settings[sk]; });
+        else if(k==="bookmarks") Object.keys(defaults.bookmarks).forEach(bk=>{ if(!Array.isArray(d.bookmarks[bk])) d.bookmarks[bk]=[]; });
+      });
+      return d;
+    }
+  }catch(e){}
+  return defaults;
 }
 function saveDB(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(DB)); }catch(e){} }
 
@@ -875,8 +918,10 @@ const NEW_PER_DAY = 30;
 function newPerDay(){ const n=DB.settings && DB.settings.newPerDay; return (n==null)? NEW_PER_DAY : n; }
 function newEntries(limit){
   if(limit==null) limit=newPerDay();
+  /* If we have zero progress (fresh install / new origin), return a random sample
+     from the most useful sets, shuffled, so Due-today is never empty and never repetitive. */
   const bySet=["vocab","kanji","grammar","hiragana","katakana"]
-    .map(set=>allEntries(set).filter(e=>!DB.progress[e.id]));
+    .map(set=>shuffle(allEntries(set).filter(e=>!DB.progress[e.id])));
   const out=[]; let i=0, guard=0;
   while(out.length<limit && guard++<10000){
     let added=false;
@@ -955,6 +1000,8 @@ function renderHome(){
   $("#sentencesCount").textContent = Object.keys(VOCAB_SENTENCES).length+" example sentences by type";
   $("#kanjiBankCount").textContent = KANJI.length+" kanji · readings & tips";
   $("#listeningCount").textContent = LISTENING.length+" practice sets · opens YouTube";
+  $("#verbCount").textContent = VERBS.length+" verbs · ます/ない/て forms";
+  $("#counterCount").textContent = COUNTERS.length+" counters · sound changes";
   // spaced review: daily queue (due reviews + new) + leeches
   const due=dueEntries(), nw=newEntries(newPerDay()), leech=leechEntries();
   const total=due.length+nw.length;
@@ -1889,6 +1936,128 @@ function renderKanjiBank(){
   $("#kanjiBankBody").innerHTML=h;
 }
 
+/* ===================== VERB CONJUGATION QUIZ ===================== */
+let VERB_FORM="te", VERB_GROUP="", VERB_Q=null, VERB_I=0;
+function verbFormLabel(f){ return {masu:"ます form", nai:"ない form", te:"て form", mix:"Mixed"}[f]||f; }
+function startVerbQuiz(){
+  const pool = VERBS.filter(v=>!VERB_GROUP || v.group===+VERB_GROUP);
+  const forms = VERB_FORM==="mix" ? ["masu","nai","te"] : [VERB_FORM];
+  const items = shuffle(pool.flatMap(v=>forms.map(f=>({v,form:f}))));
+  VERB_Q = { items, idx:0, correct:0 };
+  renderVerbQuestion();
+}
+function renderVerbQuestion(){
+  const Q=VERB_Q; if(!Q||Q.idx>=Q.items.length){ renderVerbResult(); return; }
+  const {v,form}=Q.items[Q.idx];
+  const correct=v[form];
+  const distractors=shuffle(VERBS.filter(x=>x.dict!==v.dict).map(x=>x[form])).filter(d=>d&&d!==correct).slice(0,3);
+  const opts=shuffle([correct,...distractors]);
+  const body=$("#verbQuizBody");
+  body.innerHTML=`
+    <div class="vq-progress">${Q.idx+1} / ${Q.items.length} · <span class="vq-score">${Q.correct} correct</span></div>
+    <div class="vq-card">
+      <div class="vq-en">${escHtml(v.en)}</div>
+      <div class="vq-dict">${escHtml(v.dict)} <span class="vq-grp">G${v.group}</span></div>
+      <div class="vq-target">→ ${verbFormLabel(form)}</div>
+    </div>
+    <div class="mcq">${opts.map(o=>`<button class="opt" data-v="${escAttr(o)}">${escHtml(o)}</button>`).join("")}</div>
+    <div class="vq-fb" id="verbFb"></div>
+    <div style="padding:8px 0"><button class="btn ghost sm" id="verbSkip">Skip →</button></div>`;
+  body.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(b.classList.contains("dim")) return;
+    const ok=b.dataset.v===correct;
+    body.querySelectorAll(".opt").forEach(x=>{x.classList.add("dim"); if(x.dataset.v===correct) x.classList.add("correct");});
+    if(!ok) b.classList.add("wrong");
+    if(ok) Q.correct++;
+    $("#verbFb").innerHTML=ok?`<span class="fb-correct">✓ Correct</span>`:`<span class="fb-wrong">✗ ${escHtml(correct)}</span>`;
+    setTimeout(()=>{ Q.idx++; renderVerbQuestion(); }, ok?700:1400);
+  });
+  $("#verbSkip").onclick=()=>{ Q.idx++; renderVerbQuestion(); };
+}
+function renderVerbResult(){
+  const Q=VERB_Q; if(!Q) return;
+  const pct=Q.items.length?Math.round(Q.correct/Q.items.length*100):0;
+  $("#verbQuizBody").innerHTML=`
+    <div class="result-hero" style="padding:20px 0">
+      <div class="big-emoji">${pct>=80?"🎉":"💪"}</div>
+      <h2>${Q.correct} / ${Q.items.length} correct (${pct}%)</h2>
+      <button class="btn" id="verbAgain">Again</button>
+    </div>`;
+  $("#verbAgain").onclick=startVerbQuiz;
+}
+function renderVerbs(){
+  const forms=[{v:"masu",l:"ます"},{v:"nai",l:"ない"},{v:"te",l:"て"},{v:"mix",l:"Mixed"}];
+  const groups=[{v:"",l:"All"},{v:"1",l:"G1 う"},{v:"2",l:"G2 る"},{v:"3",l:"G3 不規則"}];
+  let chips=`<div class="choices" data-key="vform">`+forms.map(f=>`<button class="chip ${f.v===VERB_FORM?'on':''}" data-v="${f.v}">${f.l}</button>`).join("")+`</div>`;
+  chips+=`<div class="choices" data-key="vgroup" style="margin-top:6px">`+groups.map(g=>`<button class="chip ${g.v===VERB_GROUP?'on':''}" data-v="${g.v}">${g.l}</button>`).join("")+`</div>`;
+  $("#verbChips").innerHTML=chips+`<button class="btn shu sm" id="verbStart" style="margin:10px 0">Start drill</button>`;
+  $$("#verbChips .choices[data-key='vform'] .chip").forEach(c=>c.onclick=()=>{
+    VERB_FORM=c.dataset.v; $$("#verbChips .choices[data-key='vform'] .chip").forEach(x=>x.classList.remove("on")); c.classList.add("on");});
+  $$("#verbChips .choices[data-key='vgroup'] .chip").forEach(c=>c.onclick=()=>{
+    VERB_GROUP=c.dataset.v; $$("#verbChips .choices[data-key='vgroup'] .chip").forEach(x=>x.classList.remove("on")); c.classList.add("on");});
+  $("#verbStart").onclick=startVerbQuiz;
+  const count=VERBS.filter(v=>!VERB_GROUP||v.group===+VERB_GROUP).length;
+  $("#verbQuizBody").innerHTML=`<div class="empty-note">${count} verbs ready. Pick a form and group, then start.</div>`;
+}
+
+/* ===================== COUNTER QUIZ ===================== */
+let CTR_SUFFIX="", CTR_Q=null;
+function startCounterQuiz(){
+  const pool=COUNTERS.filter(c=>!CTR_SUFFIX||c.suffix===CTR_SUFFIX);
+  const items=shuffle(pool.flatMap(c=>c.items.map(it=>({counter:c, item:it}))));
+  CTR_Q={items, idx:0, correct:0};
+  renderCounterQuestion();
+}
+function renderCounterQuestion(){
+  const Q=CTR_Q; if(!Q||Q.idx>=Q.items.length){ renderCounterResult(); return; }
+  const {counter, item}=Q.items[Q.idx];
+  const correct=item.reading;
+  const distractors=shuffle(counter.items.filter(x=>x.reading!==correct).map(x=>x.reading)).slice(0,3);
+  const opts=shuffle([correct,...distractors]);
+  const nLabel = item.n==="?"?"なん〜":item.n;
+  const body=$("#counterQuizBody");
+  body.innerHTML=`
+    <div class="vq-progress">${Q.idx+1} / ${Q.items.length} · <span class="vq-score">${Q.correct} correct</span></div>
+    <div class="vq-card">
+      <div class="vq-en">${escHtml(counter.en)}</div>
+      <div class="vq-dict">${escHtml(nLabel)} + ${escHtml(counter.suffix)}</div>
+    </div>
+    <div class="mcq">${opts.map(o=>`<button class="opt" data-v="${escAttr(o)}">${escHtml(o)}</button>`).join("")}</div>
+    <div class="vq-fb" id="ctrFb"></div>
+    <div style="padding:8px 0"><button class="btn ghost sm" id="ctrSkip">Skip →</button></div>`;
+  body.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(b.classList.contains("dim")) return;
+    const ok=b.dataset.v===correct;
+    body.querySelectorAll(".opt").forEach(x=>{x.classList.add("dim"); if(x.dataset.v===correct) x.classList.add("correct");});
+    if(!ok) b.classList.add("wrong");
+    if(ok) Q.correct++;
+    $("#ctrFb").innerHTML=ok?`<span class="fb-correct">✓ Correct</span>`:`<span class="fb-wrong">✗ ${escHtml(correct)}</span>`;
+    setTimeout(()=>{ Q.idx++; renderCounterQuestion(); }, ok?700:1400);
+  });
+  $("#ctrSkip").onclick=()=>{ Q.idx++; renderCounterQuestion(); };
+}
+function renderCounterResult(){
+  const Q=CTR_Q; if(!Q) return;
+  const pct=Q.items.length?Math.round(Q.correct/Q.items.length*100):0;
+  $("#counterQuizBody").innerHTML=`
+    <div class="result-hero" style="padding:20px 0">
+      <div class="big-emoji">${pct>=80?"🎉":"💪"}</div>
+      <h2>${Q.correct} / ${Q.items.length} correct (${pct}%)</h2>
+      <button class="btn" id="ctrAgain">Again</button>
+    </div>`;
+  $("#ctrAgain").onclick=startCounterQuiz;
+}
+function renderCounters(){
+  const all=[{v:"",l:"All counters"}].concat(COUNTERS.map(c=>({v:c.suffix,l:c.suffix+" ("+c.en.split("(")[0].trim()+")"})));
+  $("#counterChips").innerHTML=all.map(c=>`<button class="chip ${c.v===CTR_SUFFIX?'on':''}" data-v="${escAttr(c.v)}">${escHtml(c.l)}</button>`).join("")
+    +`<button class="btn shu sm" id="ctrStart" style="margin:10px 0">Start drill</button>`;
+  $$("#counterChips .chip").forEach(c=>c.onclick=()=>{
+    CTR_SUFFIX=c.dataset.v; $$("#counterChips .chip").forEach(x=>x.classList.remove("on")); c.classList.add("on");});
+  $("#ctrStart").onclick=startCounterQuiz;
+  const count=COUNTERS.filter(c=>!CTR_SUFFIX||c.suffix===CTR_SUFFIX).reduce((a,c)=>a+c.items.length,0);
+  $("#counterQuizBody").innerHTML=`<div class="empty-note">${count} items ready. Pick a counter type and start.</div>`;
+}
+
 /* ===================== gestures & nav ===================== */
 function skipCurrent(){
   if(!S||!S.queue.length) return;
@@ -1904,6 +2073,8 @@ function navTo(screen){
   if(screen==="sentences") renderSentences();
   if(screen==="kanji-bank") renderKanjiBank();
   if(screen==="listening") renderListening();
+  if(screen==="verbs") renderVerbs();
+  if(screen==="counters") renderCounters();
   show(screen);
 }
 
@@ -1927,6 +2098,9 @@ function init(){
   $("#kanjiBankCard").onclick=()=>navTo("kanji-bank");
   // listening
   $("#listeningCard").onclick=()=>navTo("listening");
+  // verb conjugation & counters
+  $("#verbCard").onclick=()=>navTo("verbs");
+  $("#counterCard").onclick=()=>navTo("counters");
   // mock exam
   $("#mockCard").onclick=startMock;
   $("#mockEndBtn").onclick=()=>{ if(confirm("End the exam now and see your score? Unanswered questions count as wrong.")) endMock(); };

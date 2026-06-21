@@ -1,7 +1,7 @@
 /* JLPT N5 study app — service worker.
    Cache-first app shell so the app installs and runs fully offline.
    Bump CACHE when any shell/data file changes to refresh clients. */
-const CACHE = "jlptn5-v7";
+const CACHE = "jlptn5-v8";
 
 /* Relative URLs so it works both at a domain root and under a /repo/ subpath. */
 const SHELL = [
@@ -15,6 +15,8 @@ const SHELL = [
   "./data/mnemonics.js",
   "./data/reading.js",
   "./data/listening.js",
+  "./data/verbs.js",
+  "./data/counters.js",
   "./data/vocabulary.js",
   "./data/kanji.js"
 ];
